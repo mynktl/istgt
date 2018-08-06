@@ -56,7 +56,8 @@
 #define __attribute__(x)
 #endif
 
-static void fatal(const char *format, ...) __attribute__((__noreturn__, __format__(__printf__, 1, 2)));
+static void fatal(const char *format, ...)
+    __attribute__((__noreturn__, __format__(__printf__, 1, 2)));
 
 static void
 fatal(const char *format, ...)
@@ -96,7 +97,11 @@ typedef struct memory_pool {
 	void *endmem;
 
 	pthread_mutex_t  mmtx;
-	uint16_t mapsize; //limits us to 64k objects per pool, should be looking at bits instead of uint8
+	/*
+	 * limits us to 64k objects per pool, should be looking at
+	 * bits instead of uint8
+	 */
+	uint16_t mapsize;
 	uint16_t bucksize;
 	uint8_t *usagemap;
 	uint64_t **bucket;
@@ -109,17 +114,32 @@ static int mpool_inited = 0;
 static size_t mpool_minSize = 0;
 static size_t mpool_maxSize = 0;
 
-//uint8_t PoolMap[MAX_SIZE+1];
-//uint32_t PoolSize[20]     = { 4096, 8192, 12288, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+#if 0
+uint8_t PoolMap[MAX_SIZE+1];
+uint32_t PoolSize[20]     =
+{ 4096, 8192, 12288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+#endif
 uint32_t PoolSizeActual[50] = {0} ;
 
 uint32_t poolBuckUsage[50] = { 0 };
-//uint32_t PoolSize[20]     =  { 1024, 2048, 3072, 4096, 5000, 6000, 8192, 12288, 16384, 32768, 65536, 131072, 262144, 307200, 524288, 0, 0, 0, 0, 0};
-//uint32_t poolBuckLimit[20] = { 1024, 1024,  1024, 1040,  800,  400,  600,   320,   120,   320,   120,    120,    120,     60,    120, 0, 0, 0, 0, 0};
-uint32_t PoolSize[50]     =  { 32,     64,  128,  256,  512, 1024, 2048, 3072, 4096, 5000, 6000, 8192, 12288, 16384, 32768, 65536, 131072, 262144, 307200, 524288, 590000, 856200, 1048680, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint16_t poolBuckLimit[50] = { 700, 700, 400, 700, 4096, 4096, 2080, 1024, 1024,  500,  400,  600,   220,   220,   120,   220,    220,    220,    160,    50,     40, 100, 12, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#if 0
+uint32_t PoolSize[20] = { 1024, 2048, 3072, 4096, 5000, 6000, 8192,
+    12288, 16384, 32768, 65536, 131072, 262144, 307200, 524288, 0,
+    0, 0, 0, 0};
+uint32_t poolBuckLimit[20] =
+{ 1024, 1024,  1024, 1040,  800,  400,  600,   320,   120,   320,
+    120,    120,    120,     60,    120, 0, 0, 0, 0, 0};
+#endif
+uint32_t PoolSize[50]  =
+{ 32,     64,  128,  256,  512, 1024, 2048, 3072, 4096, 5000,
+    6000, 8192, 12288, 16384, 32768, 65536, 131072, 262144, 307200,
+    524288, 590000, 856200, 1048680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint16_t poolBuckLimit[50] =
+{ 700, 700, 400, 700, 4096, 4096, 2080, 1024, 1024,  500,  400,
+    600,   220,   220,   120,   220,    220,    220,    160,    50,
+    40, 100, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 static int      g_poolCnt = 0;
 static uint64_t totalAlloc = 0;
@@ -136,11 +156,12 @@ poolinit(void)
 
 	FILE *fp = fopen("/etc/istgt-mem.conf", "r");
 	if (fp) {
-		while(!feof(fp)) {
+		while (!feof(fp)) {
 			int psz = 0, plimit = 0;
 			int vals = fscanf(fp, "mem%d.%d\n", &psz, &plimit);
 			if (vals == 2) {
-				if (psz > 0 && psz < 1050000 && (uint32_t)psz > PoolSize[i-1]) {
+				if (psz > 0 && psz < 1050000 &&
+				    (uint32_t)psz > PoolSize[i-1]) {
 					PoolSize[i] = psz;
 					if (plimit < 0)
 						plimit = 0;
@@ -157,9 +178,10 @@ poolinit(void)
 		fp = NULL; i = 0;
 	}
 
-	for (i=0; i<50; ++i) {
+	for (i = 0; i < 50; ++i) {
 		if (PoolSize[i] != 0 && poolBuckLimit[i] != 0)
-			msize +=  ((PoolSize[i] + (sizeof (mem_hdr_t) * 3)) * poolBuckLimit[i]);
+			msize +=  ((PoolSize[i] + (sizeof (mem_hdr_t) * 3)) *
+			    poolBuckLimit[i]);
 	}
 	void *globalmem = malloc(msize);
 	uint8_t *gptr = globalmem;
@@ -168,7 +190,7 @@ poolinit(void)
 	gstart = gptr;
 	gend = gptr + (msize - 10);
 
-	for (i=0, j=0; j<50; ++j) {
+	for (i = 0, j = 0; j < 50; ++j) {
 		if ((PoolSize[j] != 0) && (poolBuckLimit[j] != 0)) {
 			snprintf(mpools[i].name, 11, "m:%x", PoolSize[j]);
 			mpools[i].objsize = PoolSize[j];
@@ -181,31 +203,44 @@ poolinit(void)
 			mpools[i].bucksize = poolBuckLimit[j];
 			mpools[i].mapsize = mpools[i].bucksize;
 
-			mpools[i].bucket = malloc((sizeof (void *)) * (mpools[i].bucksize + 2));
-			mpools[i].usagemap = malloc((sizeof (uint8_t)) * (mpools[i].mapsize + 2));
-			memset(mpools[i].bucket, 0, (sizeof (void *)) * (mpools[i].bucksize + 2));
-			memset(mpools[i].usagemap, 0, (sizeof (uint8_t)) * (mpools[i].mapsize + 2));
+			mpools[i].bucket = malloc((sizeof (void *)) *
+			    (mpools[i].bucksize + 2));
+			mpools[i].usagemap = malloc((sizeof (uint8_t)) *
+			    (mpools[i].mapsize + 2));
+			memset(mpools[i].bucket, 0, (sizeof (void *)) *
+			    (mpools[i].bucksize + 2));
+			memset(mpools[i].usagemap, 0, (sizeof (uint8_t)) *
+			    (mpools[i].mapsize + 2));
 
 			rc = pthread_mutex_init(&mpools[i].mmtx, NULL);
-			if (!mpools[i].bucket || !mpools[i].usagemap || rc != 0) {
-				ISTGT_ERRLOG("mempool init failed for %d)size:%d  %x/%d [ %p %p %d ]\n", i, PoolSize[j],
-						mpools[i].bucksize, mpools[i].mapsize, mpools[i].bucket, mpools[i].usagemap, rc);
+			if (!mpools[i].bucket ||
+			    !mpools[i].usagemap || rc != 0) {
+				ISTGT_ERRLOG("mempool init failed for %d) "
+				    "size:%d  %x/%d [ %p %p %d ]\n",
+				    i, PoolSize[j], mpools[i].bucksize,
+				    mpools[i].mapsize, mpools[i].bucket,
+				    mpools[i].usagemap, rc);
 				return;
 			}
 			mpools[i].startmem = gptr;
-			for (k=0; k<mpools[i].bucksize; ++k) {
+			for (k = 0; k < mpools[i].bucksize; ++k) {
 				uint64_t *mem = (uint64_t *)gptr;
-				gptr += mpools[i].objsize + (sizeof (mem_hdr_t) * 3);
+				gptr += mpools[i].objsize +
+				    (sizeof (mem_hdr_t) * 3);
 				memset(mem, 0, 200);
 				mpools[i].bucket[k] = mem;
 			}
 			mpools[i].endmem = gptr;
 			if (gptr > ((uint8_t *)gend)) {
-				ISTGT_NOTICELOG("poolmem: %s %x %x overshot the intial alloc\n", mpools[i].name, mpools[i].bucksize, mpools[i].mapsize);
+				ISTGT_NOTICELOG("poolmem: %s %x %x overshot the"
+				    " intial alloc\n",
+				    mpools[i].name, mpools[i].bucksize,
+				    mpools[i].mapsize);
 				raise(11);
 			}
 			PoolSizeActual[i] = PoolSize[j];
-			if (mpool_minSize == 0 || mpool_minSize > PoolSizeActual[i])
+			if (mpool_minSize == 0 ||
+			    mpool_minSize > PoolSizeActual[i])
 				mpool_minSize = PoolSizeActual[i] - 1;
 			if (mpool_maxSize < PoolSizeActual[i])
 				mpool_maxSize = PoolSizeActual[i] + 1;
@@ -213,7 +248,10 @@ poolinit(void)
 			++i;
 		}
 	}
-	if (mpool_minSize < 256) //if we have a smaller pool, lets do all allocs from us
+	/*
+	 * if we have a smaller pool, lets do all allocs from us
+	 */
+	if (mpool_minSize < 256)
 		mpool_minSize = 0;
 	mpool_inited = 1;
 }
@@ -224,7 +262,7 @@ poolfini(void)
 {
 	int i;
 	mpool_inited = 0;
-	for (i=0; i<50; ++i) {
+	for (i = 0; i < 50; ++i) {
 		PoolSizeActual[i] = 0;
 		if (mpools[i].bucket != NULL)
 			free(mpools[i].bucket);
@@ -243,7 +281,7 @@ poolfini(void)
 		mpools[i].endmem = NULL;
 
 	}
-	//if (gstart != NULL)
+	// if (gstart != NULL)
 	//	free(gstart);
 	gstart = NULL;
 	gend = NULL;
@@ -258,22 +296,24 @@ checkleak(int i)
 	int wn, k, e=0, jn=0;
 	uint32_t u=0, pr=0;
 	uint32_t osz = mpools[i].objsize;
-	for (k=0; k<mpools[i].bucksize && u <= mpools[i].inuse; ++k) {
+	for (k = 0; k < mpools[i].bucksize && u <= mpools[i].inuse; ++k) {
 		if (mpools[i].usagemap[k] != 0) {
 			uint64_t *m = mpools[i].bucket[k];
 			mem_hdr_t *mem = (mem_hdr_t *)m;
 			if (mem->inUse == 0) {
-				++e; //not expected
+				++e; // not expected
 			} else {
 				++u;
-				wn = snprintf(ptr, rem, " %d.%.*s.%d.%d,", k, 14, mem->tinf, mem->line, mem->alloccnt);
+				wn = snprintf(ptr, rem, " %d.%.*s.%d.%d,",
+				    k, 14, mem->tinf, mem->line, mem->alloccnt);
 				if (wn < 0)
 					wn = 0;
 				else if (wn > rem)
 					wn = rem;
 				ptr += wn; rem -= wn;
 				if (rem < 40) {
-					ISTGT_NOTICELOG("L:%d [%u:%s]", osz, u-pr, buf);
+					ISTGT_NOTICELOG("L:%d [%u:%s]",
+					    osz, u-pr, buf);
 					ptr = buf; rem = 900; pr = u;
 				}
 			}
@@ -287,20 +327,28 @@ checkleak(int i)
 }
 
 int
-poolprint(char *inbuf __attribute__((__unused__)), int len __attribute__((__unused__)))
+poolprint(char *inbuf __attribute__((__unused__)),
+    int len __attribute__((__unused__)))
 {
-	//char *ptr = inbuf;
-	//int wn, i;
-	//int rem = len - 3;
+	// char *ptr = inbuf;
+	// int wn, i;
+	// int rem = len - 3;
 	int i;
-	ISTGT_NOTICELOG("in: m:%9s  %7s,%5s,%5s %5s   allocs,frees", "poolsize", "total", "inuse", "max", "fail");
-	for (i=0; i<50; ++i) {
+	ISTGT_NOTICELOG("in: m:%9s  %7s,%5s,%5s %5s   allocs,frees",
+	    "poolsize", "total", "inuse", "max", "fail");
+	for (i = 0; i < 50; ++i) {
 		if (mpools[i].bucksize == 0)
 			continue;
 		ISTGT_NOTICELOG("%2d: m:%9d  %7d,%5d,%5d %5d   %ld,%ld",
-				i, mpools[i].objsize, mpools[i].bucksize, mpools[i].inuse, mpools[i].maxuse, mpools[i].fail, mpools[i].allocs, mpools[i].frees);
-		/*wn = snprintf(ptr, rem, " m:%9d  %7d,%5d,%5d %5d  %ld,%ld",
-				mpools[i].objsize, mpools[i].bucksize, mpools[i].inuse, mpools[i].maxuse, mpools[i].fail, mpools[i].allocs, mpools[i].frees);
+		    i, mpools[i].objsize, mpools[i].bucksize,
+		    mpools[i].inuse, mpools[i].maxuse, mpools[i].fail,
+		    mpools[i].allocs, mpools[i].frees);
+		/*
+		 * wn = snprintf(ptr, rem, " m:%9d  %7d,%5d,%5d %5d  %ld,%ld",
+		 *     mpools[i].objsize, mpools[i].bucksize, mpools[i].inuse,
+		 *     mpools[i].maxuse, mpools[i].fail, mpools[i].allocs,
+		 *     mpools[i].frees);
+		 */
 		if (wn < 0)
 			wn = 0;
 		else if (wn > rem)
@@ -311,12 +359,12 @@ poolprint(char *inbuf __attribute__((__unused__)), int len __attribute__((__unus
 			ptr = inbuf; rem = len - 3;
 		}*/
 	}
-	for (i=0; i<50; ++i) {
+	for (i = 0; i < 50; ++i) {
 		if (mpools[i].inuse > 0)
 			checkleak(i);
 	}
-	return 0;
-	//return (len - rem);
+	return (0);
+	// return (len - rem);
 }
 
 
@@ -339,7 +387,8 @@ xmalloci(size_t size, uint16_t line)
 
 	if (mpool_inited == 1 &&
 			(size > mpool_minSize && size < mpool_maxSize)) {
-		for	(i=0; i<g_poolCnt; ++i) { //we rely on the increasing size in the array
+		for (i = 0; i < g_poolCnt; ++i) {
+			// we rely on the increasing size in the array
 			if (PoolSizeActual[i] >= size) {
 				pIdx = i;
 				break;
@@ -360,29 +409,37 @@ xmalloci(size_t size, uint16_t line)
 						bIdx = i;
 						++mpools[pIdx].allocs;
 						++mpools[pIdx].inuse;
-						if (mpools[pIdx].inuse > mpools[pIdx].maxuse)
-							mpools[pIdx].maxuse = mpools[pIdx].inuse;
+						if (mpools[pIdx].inuse >
+						    mpools[pIdx].maxuse)
+							mpools[pIdx].maxuse =
+							    mpools[pIdx].inuse;
 						break;
 					}
 				}
 			}
 			if (bIdx == 0xffff) {
 				++mpools[pIdx].fail;
-				if (mpools[pIdx].inuse < mpools[pIdx].bucksize) {
+				if (mpools[pIdx].inuse <
+				    mpools[pIdx].bucksize) {
 					raise(11);
 				}
 			}
 			pthread_mutex_unlock(&mpools[pIdx].mmtx);
 			if (bIdx != 0xffff) {
 				uint64_t *m = mpools[pIdx].bucket[bIdx];
-				p = (void *)(((uint8_t *)m) + sizeof(mem_hdr_t));
+				p = (void *)(((uint8_t *)m) +
+				    sizeof (mem_hdr_t));
 
 				mem_hdr_t *mem = (mem_hdr_t *)m;
 				mem->pIdx = pIdx; mem->bIdx = bIdx;
-				if ((mem->inUse == 1) || (mem->freecnt != mem->alloccnt)) {
-					ISTGT_NOTICELOG("poolalloc:issue %p inuse:%d.%d  c:%u/%u  ln:%d.%s:%d)  [%d/%d]",
-							p, mem->inUse, mem->dfree, mem->alloccnt, mem->freecnt,
-							mem->line, mem->tinf, line, mem->pIdx, mem->bIdx);
+				if ((mem->inUse == 1) ||
+				    (mem->freecnt != mem->alloccnt)) {
+					ISTGT_NOTICELOG("poolalloc:issue %p "
+					    "inuse:%d.%d  c:%u/%u  ln:%d.%s:%d)"
+					    "  [%d/%d]", p, mem->inUse,
+					    mem->dfree, mem->alloccnt,
+					    mem->freecnt, mem->line, mem->tinf,
+					    line, mem->pIdx, mem->bIdx);
 					if (detectDoubleFree == 1)
 						raise(11);
 				}
@@ -391,12 +448,15 @@ xmalloci(size_t size, uint16_t line)
 				memcpy(mem->tinf, tinfo, 16);
 				mem->line = line;
 				if (memdebug == 1) {
-					mem_hdr_t *mx = (mem_hdr_t *)(((uint8_t *)p) - sizeof (mem_hdr_t)); 
-					ISTGT_NOTICELOG("poolalloc: %s size:%ld Idx:%d/%d  %d/%d  %p/%p %p",
-						tinfo, size, pIdx, mx->pIdx, bIdx, mx->bIdx,
-						m, mx, p);
+					mem_hdr_t *mx = (mem_hdr_t *)
+					    (((uint8_t *)p) -
+					    sizeof (mem_hdr_t));
+					ISTGT_NOTICELOG("poolalloc: %s size:%ld"
+					    " Idx:%d/%d  %d/%d  %p/%p %p",
+					    tinfo, size, pIdx, mx->pIdx, bIdx,
+					    mx->bIdx, m, mx, p);
 				}
-				return p;
+				return (p);
 			}
 		}
 	}
@@ -405,8 +465,9 @@ xmalloci(size_t size, uint16_t line)
 	if (p == NULL)
 		fatal("no memory\n");
 
-	ISTGT_TRACELOG(ISTGT_TRACE_MEM, "alloc:%p:size:%lu  %s:%d [pool:%u %d/%d]", p, size, tinfo, line, objsz, inuse, bucksize);
-	return p;
+	ISTGT_TRACELOG(ISTGT_TRACE_MEM, "alloc:%p:size:%lu  %s:%d "
+	    "[pool:%u %d/%d]", p, size, tinfo, line, objsz, inuse, bucksize);
+	return (p);
 }
 
 void
@@ -415,19 +476,24 @@ xfreei(void *p, uint16_t line)
 	if (p == NULL)
 		return;
 
-	//simple way to check if its our pools
+	// simple way to check if its our pools
 	if (p >= gstart && p < gend) {
-		mem_hdr_t *m = (mem_hdr_t *)(((uint8_t *)p) - sizeof (mem_hdr_t));
+		mem_hdr_t *m = (mem_hdr_t *)(((uint8_t *)p) -
+		    sizeof (mem_hdr_t));
 		pthread_mutex_lock(&mpools[m->pIdx].mmtx);
 		if ((m->inUse == 0) || ((m->freecnt+1) != m->alloccnt)) {
 			uint16_t pi = m->pIdx, bi = m->bIdx, ln = m->line;
 			uint8_t df = ++m->dfree;
 			if (detectDoubleFree == 1) {
-				ISTGT_NOTICELOG("poolfree:issue %s %p (%p)  Idx:%d/%d (freed:%d/%d, %d)", tinfo, p, m,  pi, bi, ln, line, df);
+				ISTGT_NOTICELOG("poolfree:issue %s %p (%p) "
+				    "Idx:%d/%d (freed:%d/%d, %d)",
+				    tinfo, p, m,  pi, bi, ln, line, df);
 				raise(11);
 			} else {
 				pthread_mutex_unlock(&mpools[m->pIdx].mmtx);
-				ISTGT_NOTICELOG("poolfree:issue %s %p (%p)  Idx:%d/%d (freed:%d/%d, %d)", tinfo, p, m,  pi, bi, ln, line, df);
+				ISTGT_NOTICELOG("poolfree:issue %s %p (%p) "
+				    "Idx:%d/%d (freed:%d/%d, %d)",
+				    tinfo, p, m,  pi, bi, ln, line, df);
 				return;
 			}
 		}
@@ -439,7 +505,8 @@ xfreei(void *p, uint16_t line)
 		m->line = line;
 		pthread_mutex_unlock(&mpools[m->pIdx].mmtx);
 		if (memdebug == 1) {
-			ISTGT_NOTICELOG("poolfree: %s %p (%p)  Idx:%d/%d", tinfo, p, m,  m->pIdx, m->bIdx);
+			ISTGT_NOTICELOG("poolfree: %s %p (%p) Idx:%d/%d",
+			    tinfo, p, m,  m->pIdx, m->bIdx);
 		}
 		return;
 	}
@@ -455,12 +522,12 @@ xstrdupi(const char *s, uint16_t line)
 	size_t size;
 
 	if (s == NULL)
-		return NULL;
+		return (NULL);
 	size = strlen(s) + 1;
 	p = xmalloci(size, line);
 	memcpy(p, s, size - 1);
 	p[size - 1] = '\0';
-	return p;
+	return (p);
 }
 
 char *
@@ -469,14 +536,14 @@ strlwr(char *s)
 	char *p;
 
 	if (s == NULL)
-		return NULL;
+		return (NULL);
 
 	p = s;
 	while (*p != '\0') {
 		*p = tolower((int) *p);
 		p++;
 	}
-	return s;
+	return (s);
 }
 
 char *
@@ -485,14 +552,14 @@ strupr(char *s)
 	char *p;
 
 	if (s == NULL)
-		return NULL;
+		return (NULL);
 
 	p = s;
 	while (*p != '\0') {
 		*p = toupper((int) *p);
 		p++;
 	}
-	return s;
+	return (s);
 }
 
 char *
@@ -503,7 +570,7 @@ strsepq(char **stringp, const char *delim)
 
 	p = *stringp;
 	if (p == NULL)
-		return NULL;
+		return (NULL);
 
 	r = q = p;
 	while (*q != '\0' && *q != '\n') {
@@ -548,7 +615,7 @@ strsepq(char **stringp, const char *delim)
 
 	/* skip tailer */
 	while (*q != '\0' && strchr(delim, (int) *q) != NULL) {
-        q++;
+		q++;
 	}
 	if (*q != '\0') {
 		*stringp = q;
@@ -556,7 +623,7 @@ strsepq(char **stringp, const char *delim)
 		*stringp = NULL;
 	}
 
-	return p;
+	return (p);
 }
 
 char *
@@ -565,7 +632,7 @@ trim_string(char *s)
 	char *p, *q;
 
 	if (s == NULL)
-		return NULL;
+		return (NULL);
 
 	/* remove header */
 	p = s;
@@ -585,7 +652,7 @@ trim_string(char *s)
 			*q++ = *p++;
 		}
 	}
-	return s;
+	return (s);
 }
 
 char *
@@ -596,7 +663,7 @@ escape_string(const char *s)
 	size_t size;
 
 	if (s == NULL)
-		return NULL;
+		return (NULL);
 
 	p = s;
 	size = 0;
@@ -620,7 +687,7 @@ escape_string(const char *s)
 		}
 	}
 	*q++ = '\0';
-	return r;
+	return (r);
 }
 
 /* LBA = (M * 60 + S) * 75 + F - 150 */
@@ -633,7 +700,7 @@ istgt_msf2lba(uint32_t msf)
 	lba += ((msf >> 8) & 0xff) * 75;
 	lba += msf & 0xff;
 	lba -= 150;
-	return lba;
+	return (lba);
 }
 
 uint32_t
@@ -655,7 +722,7 @@ istgt_dget8(const uint8_t *data)
 	uint8_t value;
 
 	value  = (data[0] & 0xffU) << 0;
-	return value;
+	return (value);
 }
 
 void
@@ -671,7 +738,7 @@ istgt_dget16(const uint8_t *data)
 
 	value  = (data[0] & 0xffU) << 8;
 	value |= (data[1] & 0xffU) << 0;
-	return value;
+	return (value);
 }
 
 void
@@ -689,7 +756,7 @@ istgt_dget24(const uint8_t *data)
 	value  = (data[0] & 0xffU) << 16;
 	value |= (data[1] & 0xffU) << 8;
 	value |= (data[2] & 0xffU) << 0;
-	return value;
+	return (value);
 }
 
 void
@@ -709,7 +776,7 @@ istgt_dget32(const uint8_t *data)
 	value |= (data[1] & 0xffU) << 16;
 	value |= (data[2] & 0xffU) << 8;
 	value |= (data[3] & 0xffU) << 0;
-	return value;
+	return (value);
 }
 
 void
@@ -732,7 +799,7 @@ istgt_dget48(const uint8_t *data)
 	value |= (data[3] & 0xffULL) << 16;
 	value |= (data[4] & 0xffULL) << 8;
 	value |= (data[5] & 0xffULL) << 0;
-	return value;
+	return (value);
 }
 
 void
@@ -759,7 +826,7 @@ istgt_dget64(const uint8_t *data)
 	value |= (data[5] & 0xffULL) << 16;
 	value |= (data[6] & 0xffULL) << 8;
 	value |= (data[7] & 0xffULL) << 0;
-	return value;
+	return (value);
 }
 
 void
@@ -844,7 +911,7 @@ arc4random(void)
 	r1 = (uint32_t) (random() & 0xffff);
 	r2 = (uint32_t) (random() & 0xffff);
 	r = (r1 << 16) | r2;
-	return r;
+	return (r);
 }
 #endif /* HAVE_ARC4RANDOM */
 
@@ -879,7 +946,7 @@ istgt_bin2hex(char *buf, size_t len, const uint8_t *data, size_t data_len)
 	size_t idx;
 
 	if (len < 3)
-		return -1;
+		return (-1);
 	buf[total] = '0';
 	total++;
 	buf[total] = 'x';
@@ -889,7 +956,7 @@ istgt_bin2hex(char *buf, size_t len, const uint8_t *data, size_t data_len)
 	for (idx = 0; idx < data_len; idx++) {
 		if (total + 3 > len) {
 			buf[total] = '\0';
-			return - 1;
+			return (-1);
 		}
 		buf[total] = digits[(data[idx] >> 4) & 0x0fU];
 		total++;
@@ -897,7 +964,7 @@ istgt_bin2hex(char *buf, size_t len, const uint8_t *data, size_t data_len)
 		total++;
 	}
 	buf[total] = '\0';
-	return total;
+	return (total);
 }
 
 int
@@ -911,21 +978,21 @@ istgt_hex2bin(uint8_t *data, size_t data_len, const char *str)
 
 	p = str;
 	if (p[0] != '0' && (p[1] != 'x' && p[1] != 'X'))
-		return -1;
+		return (-1);
 	p += 2;
 
 	while (p[0] != '\0' && p[1] != '\0') {
 		if (total >= data_len) {
-			return -1;
+			return (-1);
 		}
 		dp = strchr(digits, toupper((int) p[0]));
 		if (dp == NULL) {
-			return -1;
+			return (-1);
 		}
 		n0 = (int) (dp - digits);
 		dp = strchr(digits, toupper((int) p[1]));
 		if (dp == NULL) {
-			return -1;
+			return (-1);
 		}
 		n1 = (int) (dp - digits);
 
@@ -933,7 +1000,7 @@ istgt_hex2bin(uint8_t *data, size_t data_len, const char *str)
 		total++;
 		p += 2;
 	}
-	return total;
+	return (total);
 }
 
 void
@@ -955,9 +1022,9 @@ strlcpy(char *dst, const char *src, size_t size)
 	size_t len;
 
 	if (dst == NULL)
-		return 0;
+		return (0);
 	if (size < 1) {
-		return 0;
+		return (0);
 	}
 	len = strlen(src);
 	if (len > size - 1) {
@@ -965,6 +1032,6 @@ strlcpy(char *dst, const char *src, size_t size)
 	}
 	memcpy(dst, src, len);
 	dst[len] = '\0';
-	return len;
+	return (len);
 }
 #endif /* HAVE_STRLCPY */

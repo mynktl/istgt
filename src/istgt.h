@@ -59,10 +59,10 @@
 #define __attribute__(x)
 #endif
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
-#define ISTGT_GNUC_PREREQ(ma,mi) \
+#define ISTGT_GNUC_PREREQ(ma, mi) \
 	(__GNUC__ > (ma) || (__GNUC__ == (ma) && __GNUC_MINOR__ >= (mi)))
 #else
-#define ISTGT_GNUC_PREREQ(ma,mi) 0
+#define ISTGT_GNUC_PREREQ(ma, mi) 0
 #endif
 
 #define MAX_TMPBUF 1024
@@ -110,7 +110,7 @@
 #define DEFAULT_TIMEOUT 60
 #define DEFAULT_NOPININTERVAL 20
 #define DEFAULT_MAXR2T 16
-#define TMF_TIMEOUT 2 
+#define TMF_TIMEOUT 2
 
 #define ISTGT_PG_TAG_MAX 0x0000ffff
 #define ISTGT_LU_TAG_MAX 0x0000ffff
@@ -135,11 +135,11 @@
 #if defined (__FreeBSD__) || (__linux__) || defined (__NetBSD__) || defined (__OpenBSD__)
 #define ISTGT_USE_KQUEUE
 #if defined (__linux__) || (__FreeBSD__)
-#define ISTGT_EV_SET(kevp,a,b,c,d,e,f) EV_SET((kevp),(a),(b),(c),(d),(e),(void *)(f))
+#define ISTGT_EV_SET(kevp, a, b, c, d, e, f) EV_SET((kevp), (a), (b), (c), (d), (e), (void *)(f))
 #elif defined (__NetBSD__)
-#define ISTGT_EV_SET(kevp,a,b,c,d,e,f) EV_SET((kevp),(a),(b),(c),(d),(e),(intptr_t)(f))
+#define ISTGT_EV_SET(kevp, a, b, c, d, e, f) EV_SET((kevp), (a), (b), (c), (d), (e), (intptr_t)(f))
 #else
-#define ISTGT_EV_SET(kevp,a,b,c,d,e,f) EV_SET((kevp),(a),(b),(c),(d),(e),(f))
+#define ISTGT_EV_SET(kevp, a, b, c, d, e, f) EV_SET((kevp), (a), (b), (c), (d), (e), (f))
 #endif
 #endif
 

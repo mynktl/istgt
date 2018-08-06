@@ -13,7 +13,8 @@
 int
 init_mempool(rte_smempool_t *obj, size_t count, size_t mem_size,
     size_t offset, const char *ring_name, mempool_constructor_t *mem_init,
-    mempool_destructor_t *mem_remove, mempool_reclaim_t *mem_reclaim, bool initialize)
+    mempool_destructor_t *mem_remove, mempool_reclaim_t *mem_reclaim,
+    bool initialize)
 {
 	size_t i = 0;
 	void *mem_entry = NULL;
@@ -41,7 +42,7 @@ init_mempool(rte_smempool_t *obj, size_t count, size_t mem_size,
 			}
 
 			rc = rte_ring_enqueue(obj->ring, mem_entry);
-			if(rc) {
+			if (rc) {
 				REPLICA_ERRLOG("failed to insert entry in "
 				    "mempool(%s).. \n", obj->ring->name);
 				rc = -1;
@@ -55,7 +56,8 @@ init_mempool(rte_smempool_t *obj, size_t count, size_t mem_size,
 		 * If we are unable to get provided number of entries in mempool
 		 * then we will return
 		 *	(-1) if we couldn't add single entry in mempool
-		 *	(1)  if there are some entries in mempool that caller may use
+		 *	( 1) if there are some entries in mempool that
+		 * 	     caller may use
 		 */
 		if (rc) {
 			if (i)
@@ -65,7 +67,7 @@ init_mempool(rte_smempool_t *obj, size_t count, size_t mem_size,
 		}
 	}
 
-	return rc;
+	return (rc);
 }
 
 
@@ -92,7 +94,7 @@ destroy_mempool(rte_smempool_t *obj)
 
 	ASSERT0(rte_ring_count(obj->ring));
 	rte_ring_free(obj->ring);
-	return 0;
+	return (0);
 }
 
 void *

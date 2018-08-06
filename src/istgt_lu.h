@@ -131,9 +131,9 @@ typedef enum {
 	ISTGT_LU_FLAG_MEDIA_DYNAMIC  = 0x00000020,
 } ISTGT_LU_FLAG;
 
-/* 
+/*
  * Value for max retry attempts by luworkers that get spawned,
- * esp for reload (kill -HUP) case to detect lu state in 
+ * esp for reload (kill -HUP) case to detect lu state in
  * RUNNING
  */
 #define ISTGT_MAX_LU_RUNNING_STATE_RETRY_COUNT 45
@@ -404,7 +404,7 @@ typedef struct istgt_lu_cmd_t {
 	uint64_t iobufsize;
 	int iobufindx;
 	struct iovec iobuf[40];
-	//int iobufoff[20]; int iobufsize[20]; uint8_t *iobuf[20];
+	// int iobufoff[20]; int iobufsize[20]; uint8_t *iobuf[20];
 
 	uint8_t *data;
 	size_t data_len;
@@ -452,7 +452,7 @@ typedef enum {
 	__RD10,		// "READ10"
 	__WR10,		// "WRITE10"
 	__WV10,		// "WRITE_AND_VERIFY10"
-	__PREFTCH10,// "PREFETCH10"
+	__PREFTCH10,	// "PREFETCH10"
 	__SYC10,	// "SYNC_CACHE10"
 	__RDDEF,	// "READ_DEFECT_DATA"
 	__WBF,		// "WRITE_BUFFER"
@@ -501,8 +501,8 @@ typedef struct _stat {
 	uint8_t opcode;
 	uint32_t req_start;
 	uint32_t req_finish;
-	//uint32_t req_inflight;
-	//uint64_t req_avgtime;
+	// uint32_t req_inflight;
+	// uint64_t req_avgtime;
 } _verb_stat;
 
 typedef enum {
@@ -593,7 +593,7 @@ typedef enum {
 } istgt_io_flags;
 
 struct istgt_cmd_entry {
-	//istgt_opfunc	*execute; /* NOT inuse */
+	// istgt_opfunc	*execute; /* NOT inuse */
 	istgt_seridx	seridx;
 	uint64_t	flags;  /* istgt_io_flags + istgt cmd flags */
 	scsi_stat_idx   statidx;
@@ -661,8 +661,8 @@ typedef struct istgt_lu_task_t {
 	int execute;
 	int complete;
 	int lock;
-	void *complete_queue_ptr;//Pointer to the task in Complete queue
-	ISTGT_QUEUE_Ptr blocked_by;// Pointer to the last task in complete queue blocking the current task
+	void *complete_queue_ptr; //Pointer to the task in Complete queue
+	ISTGT_QUEUE_Ptr blocked_by; //Pointer to the last task in complete queue blocking the current task
 
 	int flags;
 } ISTGT_LU_TASK;
@@ -771,7 +771,7 @@ typedef struct istgt_lu_disk_t {
 #endif
 
 	uint32_t max_unmap_sectors;
-	struct IO_types IO_size[10];	
+	struct IO_types IO_size[10];
 
 	/* modify lun */
 	int dofake;
@@ -811,7 +811,7 @@ typedef struct istgt_lu_disk_t {
 	/* for clone */
 	pthread_mutex_t clone_mutex;
 
-	int		luworkers;            //we have one-to-one mapping between LU and LUN (spec)
+	int		luworkers;            // we have one-to-one mapping between LU and LUN (spec)
 	int		luworkersActive;
 	int queue_depth;
 	ISTGT_LU_TASK_Ptr inflight_io[ISTGT_MAX_NUM_LUWORKERS];
@@ -825,10 +825,10 @@ typedef struct istgt_lu_disk_t {
 
 #ifdef REPLICATION
 	TAILQ_ENTRY(istgt_lu_disk_t)  spec_next;
-	TAILQ_HEAD(, rcommon_cmd_s) rcommon_waitq; //Contains IOs waiting for acks from atleast n(consistency level) replicas
+	TAILQ_HEAD(, rcommon_cmd_s) rcommon_waitq; // Contains IOs waiting for acks from atleast n(consistency level) replicas
 	rte_smempool_t rcommon_deadlist;	// Contains completed IOs
-	TAILQ_HEAD(, replica_s) rq; //Queue of replicas connected to this spec(volume)
-	TAILQ_HEAD(, replica_s) rwaitq; //Queue of replicas completed handshake, and yet to have data connection to this spec(volume)
+	TAILQ_HEAD(, replica_s) rq; // Queue of replicas connected to this spec(volume)
+	TAILQ_HEAD(, replica_s) rwaitq; // Queue of replicas completed handshake, and yet to have data connection to this spec(volume)
 	int replication_factor;
 	int consistency_factor;
 	int healthy_rcount;
@@ -839,8 +839,8 @@ typedef struct istgt_lu_disk_t {
 
 	/*Common for both the above queues,
 	Since same cmd is part of both the queues*/
-	pthread_mutex_t rq_mtx; 
-	pthread_mutex_t rcommonq_mtx; 
+	pthread_mutex_t rq_mtx;
+	pthread_mutex_t rcommonq_mtx;
 	pthread_mutex_t luworker_rmutex[ISTGT_MAX_NUM_LUWORKERS];
 	pthread_cond_t luworker_rcond[ISTGT_MAX_NUM_LUWORKERS];
 
@@ -851,8 +851,8 @@ typedef struct istgt_lu_disk_t {
 	} stats;
 #endif
 
-	/*Queue containing all the tasks. Instead of going to separate 
-	queues (Cmd Queue, blocked queue, maint_cmd_que, maint_blocked_queue, 
+	/*Queue containing all the tasks. Instead of going to separate
+	queues (Cmd Queue, blocked queue, maint_cmd_que, maint_blocked_queue,
 	inflight)to check for blockage, we will check it in just this queue.*/
 	ISTGT_QUEUE complete_queue;
 	pthread_mutex_t complete_queue_mutex;
@@ -931,25 +931,25 @@ typedef struct istgt_lu_disk_t {
 typedef struct scsi_pr_key  SCSI_PR_KEY;
 typedef struct scsi_pr_data  SCSI_PR_DATA;
 #else
-/* To store Persistent Registrations */ 
+/* To store Persistent Registrations */
 typedef struct scsi_pr_key {
-        uint64_t key;
-        char registered_initiator_port[256];
-        char registered_target_port[256];
-        int pg_idx;
-        int pg_tag;
-        int all_tpg;
+	uint64_t key;
+	char registered_initiator_port[256];
+	char registered_target_port[256];
+	int pg_idx;
+	int pg_tag;
+	int all_tpg;
 } SCSI_PR_KEY;
 
 /* To store Persistent Reservation */
 typedef struct scsi_pr_data {
-        int npr_keys;
-        int rsv_scope;
-        int rsv_type;
-        uint32_t pr_generation;
-        uint64_t rsv_key;
-        char rsv_port[256];
-        struct scsi_pr_key keys[MAX_LU_ZAP_RESERVE];
+	int npr_keys;
+	int rsv_scope;
+	int rsv_type;
+	uint32_t pr_generation;
+	uint64_t rsv_key;
+	char rsv_port[256];
+	struct scsi_pr_key keys[MAX_LU_ZAP_RESERVE];
 } SCSI_PR_DATA;
 #endif
 
@@ -958,8 +958,8 @@ extern ISTGT_QUEUE closedconns;
 
 
 typedef enum {
-    ACTION_CLOSE,
-    ACTION_OPEN
+	ACTION_CLOSE,
+	ACTION_OPEN
 } istgt_action;
 
 int istgt_lu_disk_signal_action(ISTGT_LU_Ptr lu, int i, struct timespec *now, istgt_action act);
@@ -974,7 +974,7 @@ int64_t
 replicate(ISTGT_LU_DISK *, ISTGT_LU_CMD_Ptr, uint64_t, uint64_t);
 int
 istgt_lu_disk_update_raw(ISTGT_LU_Ptr lu, int i, int dofake);
- 
+
 int istgt_lu_print_q(ISTGT_LU_Ptr lu, int lun);
 int istgt_lu_disk_print_reservation(ISTGT_LU_Ptr lu, int lun);
 int istgt_lu_disk_close_raw(ISTGT_LU_DISK *spec);

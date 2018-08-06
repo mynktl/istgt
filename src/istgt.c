@@ -52,7 +52,7 @@
 #endif
 
 #ifdef __linux__
-//#include <kqueue/sys/event.h>
+// #include <kqueue/sys/event.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <sys/epoll.h>
@@ -108,10 +108,10 @@ istgt_parse_portal(const char *portal, char **host, char **port, int *que)
 	int ret;
 	if (portal == NULL) {
 		ISTGT_ERRLOG("portal error\n");
-		return -1;
+		return (-1);
 	}
 	if (host == NULL || port == NULL || que == NULL)  {
-		return 0;
+		return (0);
 	}
 
 	if (portal[0] == '[') {
@@ -119,7 +119,7 @@ istgt_parse_portal(const char *portal, char **host, char **port, int *que)
 		p = strchr(portal + 1, ']');
 		if (p == NULL) {
 			ISTGT_ERRLOG("portal error\n");
-			return -1;
+			return (-1);
 		}
 		p++;
 		n = p - portal;
@@ -138,7 +138,7 @@ istgt_parse_portal(const char *portal, char **host, char **port, int *que)
 				ISTGT_ERRLOG("portal error\n");
 				if (host != NULL)
 					xfree(*host);
-				return -1;
+				return (-1);
 			}
 			if (port != NULL)
 				*port = xstrdup(p + 1);
@@ -165,7 +165,7 @@ istgt_parse_portal(const char *portal, char **host, char **port, int *que)
 				ISTGT_ERRLOG("portal error\n");
 				if (host != NULL)
 					xfree(*host);
-				return -1;
+				return (-1);
 			}
 			if (port != NULL)
 				*port = xstrdup(p + 1);
@@ -174,21 +174,25 @@ istgt_parse_portal(const char *portal, char **host, char **port, int *que)
 
 		*host = xmalloc(64);
 		*port = xmalloc(32);
-		if (*host  == NULL  || *port == NULL) {
+		if (*host  == NULL || *port == NULL) {
 			ISTGT_ERRLOG("portal:%s alloc failed\n", portal);
-			return -1;
+			return (-1);
 		}
 		*que = 32;
 		ret = sscanf(portal,  "%64[^:]:%32[^:]:%d", *host, *port, que);
 		if (ret == 2) {
-			ISTGT_TRACELOG(ISTGT_TRACE_NET, "portal host:%s port:%s q:--\n", *host, *port);
+			ISTGT_TRACELOG(ISTGT_TRACE_NET,
+			    "portal host:%s port:%s q:--\n", *host, *port);
 		} else if (ret == 3) {
-			ISTGT_TRACELOG(ISTGT_TRACE_NET, "portal host:%s port:%s q:%d\n", *host, *port, *que);
+			ISTGT_TRACELOG(ISTGT_TRACE_NET,
+			    "portal host:%s port:%s q:%d\n",
+			    *host, *port, *que);
 		} else {
-			ISTGT_ERRLOG("portal:%s ret:%d host:%s port:%s q:%d\n", portal, ret, *host, *port, *que);
+			ISTGT_ERRLOG("portal:%s ret:%d host:%s port:%s q:%d\n",
+			    portal, ret, *host, *port, *que);
 		}
 	}
-	return 0;
+	return (0);
 }
 
 static int
@@ -219,13 +223,13 @@ istgt_add_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 		rc = istgt_parse_portal(portal, NULL, NULL, NULL);
 		if (rc < 0) {
 			ISTGT_ERRLOG("parse portal error (%s)\n", portal);
-			return -1;
+			return (-1);
 		}
 	}
 	portals = i;
 	if (portals > MAX_PORTAL) {
 		ISTGT_ERRLOG("%d > MAX_PORTAL\n", portals);
-		return -1;
+		return (-1);
 	}
 
 	MTX_LOCK(&istgt->mutex);
@@ -265,7 +269,7 @@ istgt_add_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 				istgt->portal_group[idx].tag = 0;
 				MTX_UNLOCK(&istgt->mutex);
 				ISTGT_ERRLOG("portal error\n");
-				return -1;
+				return (-1);
 			}
 			rc = istgt_parse_portal(portal, &host, &port, &que);
 			if (rc < 0) {
@@ -275,21 +279,27 @@ istgt_add_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 				}
 				istgt->portal_group[idx].tag = 0;
 				MTX_UNLOCK(&istgt->mutex);
-				ISTGT_ERRLOG("parse portal error (%s)\n", portal);
-				return -1;
+				ISTGT_ERRLOG("parse portal error (%s)\n",
+				    portal);
+				return (-1);
 			}
 			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 			    "RIndex=%d, Host=%s, Port=%s, Tag=%d\n",
 			    i, host, port, sp->num);
 
 			if (free_idx < 0) {
-				istgt->portal_group[idx].portals[i] = xmalloc(sizeof (PORTAL));
+				istgt->portal_group[idx].portals[i] =
+				    xmalloc(sizeof (PORTAL));
 			} else {
-				xfree(istgt->portal_group[idx].portals[i]->label);
-				xfree(istgt->portal_group[idx].portals[i]->host);
-				xfree(istgt->portal_group[idx].portals[i]->port);
+				xfree(
+				    istgt->portal_group[idx].portals[i]->label);
+				xfree(
+				    istgt->portal_group[idx].portals[i]->host);
+				xfree(
+				    istgt->portal_group[idx].portals[i]->port);
 			}
-			istgt->portal_group[idx].portals[i]->label = xstrdup(label);
+			istgt->portal_group[idx].portals[i]->label =
+			    xstrdup(label);
 			istgt->portal_group[idx].portals[i]->host = host;
 			istgt->portal_group[idx].portals[i]->port = port;
 			istgt->portal_group[idx].portals[i]->que = que;
@@ -297,7 +307,7 @@ istgt_add_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 			istgt->portal_group[idx].portals[i]->idx = i;
 			istgt->portal_group[idx].portals[i]->tag = sp->num;
 			istgt->portal_group[idx].portals[i]->sock = -1;
-                }
+		}
 
 		if (pgp_idx != NULL)
 			*pgp_idx = idx;
@@ -308,10 +318,10 @@ istgt_add_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 	} else {
 		MTX_UNLOCK(&istgt->mutex);
 		ISTGT_ERRLOG("nportal_group(%d) >= MAX_PORTAL_GROUP\n", idx);
-		return -1;
+		return (-1);
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return 0;
+	return (0);
 }
 
 static int
@@ -326,24 +336,24 @@ istgt_pg_match_all(PORTAL_GROUP *pgp, CF_SECTION *sp)
 		label = istgt_get_nmval(sp, "Portal", i, 0);
 		portal = istgt_get_nmval(sp, "Portal", i, 1);
 		if (label == NULL || portal == NULL)
-			return 0;
+			return (0);
 		rc = istgt_parse_portal(portal, &host, &port, &que);
 		if (rc < 0)
-			return 0;
+			return (0);
 		if (strcmp(pgp->portals[i]->label, label) != 0)
-			return 0;
+			return (0);
 		if (strcmp(pgp->portals[i]->host, host) != 0)
-			return 0;
+			return (0);
 		if (strcmp(pgp->portals[i]->port, port) != 0)
-			return 0;
+			return (0);
 		if (pgp->portals[i]->que != que)
-			return 0;
+			return (0);
 	}
 	label = istgt_get_nmval(sp, "Portal", i, 0);
 	portal = istgt_get_nmval(sp, "Portal", i, 1);
 	if (label != NULL || portal != NULL)
-		return 0;
-	return 1;
+		return (0);
+	return (1);
 }
 
 static int
@@ -374,13 +384,13 @@ istgt_update_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 		rc = istgt_parse_portal(portal, NULL, NULL, NULL);
 		if (rc < 0) {
 			ISTGT_ERRLOG("parse portal error (%s)\n", portal);
-			return -1;
+			return (-1);
 		}
 	}
 	portals = i;
 	if (portals > MAX_PORTAL) {
 		ISTGT_ERRLOG("%d > MAX_PORTAL\n", portals);
-		return -1;
+		return (-1);
 	}
 
 	MTX_LOCK(&istgt->mutex);
@@ -394,12 +404,12 @@ istgt_update_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 	if (idx < 0) {
 		MTX_UNLOCK(&istgt->mutex);
 		ISTGT_ERRLOG("can't find PG%d\n", sp->num);
-		return -1;
+		return (-1);
 	}
 	if (istgt_pg_match_all(&istgt->portal_group[i], sp)) {
 		MTX_UNLOCK(&istgt->mutex);
 		ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "skip for PG%d\n", sp->num);
-		return 0;
+		return (0);
 	}
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 	    "Index=%d, Tag=%d, Portals=%d\n",
@@ -415,7 +425,7 @@ istgt_update_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 				istgt->portal_group[idx].tag = 0;
 				MTX_UNLOCK(&istgt->mutex);
 				ISTGT_ERRLOG("portal error\n");
-				return -1;
+				return (-1);
 			}
 			rc = istgt_parse_portal(portal, &host, &port, &que);
 			if (rc < 0) {
@@ -423,8 +433,9 @@ istgt_update_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 				istgt->portal_group[idx].nportals = 0;
 				istgt->portal_group[idx].tag = 0;
 				MTX_UNLOCK(&istgt->mutex);
-				ISTGT_ERRLOG("parse portal error (%s)\n", portal);
-				return -1;
+				ISTGT_ERRLOG("parse portal error (%s)\n",
+				    portal);
+				return (-1);
 			}
 			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 			    "RIndex=%d, Host=%s, Port=%s, Q=%d, Tag=%d\n",
@@ -436,15 +447,16 @@ istgt_update_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 			xfree(istgt->portal_group[idx].portals[i]->port);
 
 			/* allocate new PG */
-			istgt->portal_group[idx].portals[i]->label = xstrdup(label);
+			istgt->portal_group[idx].portals[i]->label =
+			    xstrdup(label);
 			istgt->portal_group[idx].portals[i]->host = host;
 			istgt->portal_group[idx].portals[i]->port = port;
 			istgt->portal_group[idx].portals[i]->que = que;
-			//istgt->portal_group[idx].portals[i]->ref = 0;
-			//istgt->portal_group[idx].portals[i]->idx = i;
-			//istgt->portal_group[idx].portals[i]->tag = sp->num;
-			//istgt->portal_group[idx].portals[i]->sock = -1;
-                }
+			// istgt->portal_group[idx].portals[i]->ref = 0;
+			// istgt->portal_group[idx].portals[i]->idx = i;
+			// istgt->portal_group[idx].portals[i]->tag = sp->num;
+			// istgt->portal_group[idx].portals[i]->sock = -1;
+		}
 		if (pgp_idx != NULL)
 			*pgp_idx = idx;
 	} else {
@@ -466,14 +478,17 @@ istgt_update_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 			idx = free_idx;
 		ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 		    "Index=%d, Tag=%d, Portals=%d -> %d\n",
-		    idx, sp->num, istgt->portal_group[*pgp_idx].nportals, portals);
+		    idx, sp->num, istgt->portal_group[*pgp_idx].nportals,
+		    portals);
 		if (idx < MAX_PORTAL_GROUP) {
 			if (free_idx < 0) {
 				istgt->portal_group[idx].nportals = portals;
 				alloc_len = sizeof (PORTAL *) * portals;
-				istgt->portal_group[idx].portals = xmalloc(alloc_len);
+				istgt->portal_group[idx].portals =
+				    xmalloc(alloc_len);
 			}
-			istgt->portal_group[idx].ref = istgt->portal_group[*pgp_idx].ref;
+			istgt->portal_group[idx].ref =
+			    istgt->portal_group[*pgp_idx].ref;
 			istgt->portal_group[idx].idx = idx;
 			istgt->portal_group[idx].tag = sp->num;
 
@@ -482,31 +497,36 @@ istgt_update_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 				portal = istgt_get_nmval(sp, "Portal", i, 1);
 				if (label == NULL || portal == NULL) {
 					if (free_idx < 0) {
-						xfree(istgt->portal_group[idx].portals);
+						xfree(
+						    istgt->portal_group[idx].portals);
 						istgt->portal_group[idx].nportals = 0;
 					}
 					istgt->portal_group[idx].tag = 0;
 					MTX_UNLOCK(&istgt->mutex);
 					ISTGT_ERRLOG("portal error\n");
-					return -1;
+					return (-1);
 				}
-				rc = istgt_parse_portal(portal, &host, &port, &que);
+				rc = istgt_parse_portal(portal, &host, &port,
+				    &que);
 				if (rc < 0) {
 					if (free_idx < 0) {
-						xfree(istgt->portal_group[idx].portals);
+						xfree(
+						    istgt->portal_group[idx].portals);
 						istgt->portal_group[idx].nportals = 0;
 					}
 					istgt->portal_group[idx].tag = 0;
 					MTX_UNLOCK(&istgt->mutex);
-					ISTGT_ERRLOG("parse portal error (%s)\n", portal);
-					return -1;
+					ISTGT_ERRLOG(
+					    "parse portal error (%s)\n", portal);
+					return (-1);
 				}
 				ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 				    "RIndex=%d, Host=%s, Port=%s, Q=%d, Tag=%d\n",
 				    i, host, port, que, sp->num);
 
 				if (free_idx < 0) {
-					istgt->portal_group[idx].portals[i] = xmalloc(sizeof (PORTAL));
+					istgt->portal_group[idx].portals[i] =
+					    xmalloc(sizeof (PORTAL));
 				} else {
 					xfree(istgt->portal_group[idx].portals[i]->label);
 					xfree(istgt->portal_group[idx].portals[i]->host);
@@ -530,12 +550,13 @@ istgt_update_portal_group(ISTGT_Ptr istgt, CF_SECTION *sp, int *pgp_idx)
 			}
 		} else {
 			MTX_UNLOCK(&istgt->mutex);
-			ISTGT_ERRLOG("nportal_group(%d) >= MAX_PORTAL_GROUP\n", idx);
-			return -1;
+			ISTGT_ERRLOG("nportal_group(%d) >= MAX_PORTAL_GROUP\n",
+			    idx);
+			return (-1);
 		}
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return 1;
+	return (1);
 }
 
 static int
@@ -549,17 +570,17 @@ istgt_build_portal_group_array(ISTGT_Ptr istgt)
 		if (sp->type == ST_PORTALGROUP) {
 			if (sp->num == 0) {
 				ISTGT_ERRLOG("Group 0 is invalid\n");
-				return -1;
+				return (-1);
 			}
 			rc = istgt_add_portal_group(istgt, sp, NULL);
 			if (rc < 0) {
 				ISTGT_ERRLOG("add_portal_group() failed\n");
-				return -1;
+				return (-1);
 			}
 		}
 		sp = sp->next;
 	}
-	return 0;
+	return (0);
 }
 
 static void
@@ -597,7 +618,8 @@ istgt_open_portal_group(PORTAL_GROUP *pgp)
 
 	for (i = 0; i < pgp->nportals; i++) {
 		if (pgp->portals[i]->sock < 0) {
-			ISTGT_TRACELOG(ISTGT_TRACE_NET, "open host %s, port %s, q:%d tag %d\n",
+			ISTGT_TRACELOG(ISTGT_TRACE_NET, "open host %s, port %s,"
+			    " q:%d tag %d\n",
 			    pgp->portals[i]->host, pgp->portals[i]->port,
 			    pgp->portals[i]->que,
 			    pgp->portals[i]->tag);
@@ -606,12 +628,12 @@ istgt_open_portal_group(PORTAL_GROUP *pgp)
 			if (sock < 0) {
 				ISTGT_ERRLOG("listen error %.64s:%d\n",
 				    pgp->portals[i]->host, port);
-				return -1;
+				return (-1);
 			}
 			pgp->portals[i]->sock = sock;
 		}
 	}
-	return 0;
+	return (0);
 }
 
 static int
@@ -626,11 +648,11 @@ istgt_open_all_portals(ISTGT_Ptr istgt)
 		rc = istgt_open_portal_group(&istgt->portal_group[i]);
 		if (rc < 0) {
 			MTX_UNLOCK(&istgt->mutex);
-			return -1;
+			return (-1);
 		}
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return 0;
+	return (0);
 }
 
 static int
@@ -640,14 +662,15 @@ istgt_close_portal_group(PORTAL_GROUP *pgp)
 
 	for (i = 0; i < pgp->nportals; i++) {
 		if (pgp->portals[i]->sock >= 0) {
-			ISTGT_TRACELOG(ISTGT_TRACE_NET, "close host %s, port %s, tag %d\n",
+			ISTGT_TRACELOG(ISTGT_TRACE_NET,
+			    "close host %s, port %s, tag %d\n",
 			    pgp->portals[i]->host, pgp->portals[i]->port,
 			    pgp->portals[i]->tag);
 			close(pgp->portals[i]->sock);
 			pgp->portals[i]->sock = -1;
 		}
 	}
-	return 0;
+	return (0);
 }
 
 static int
@@ -662,11 +685,11 @@ istgt_close_all_portals(ISTGT_Ptr istgt)
 		rc = istgt_close_portal_group(&istgt->portal_group[i]);
 		if (rc < 0) {
 			MTX_UNLOCK(&istgt->mutex);
-			return -1;
+			return (-1);
 		}
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return 0;
+	return (0);
 }
 
 static int
@@ -695,7 +718,7 @@ istgt_add_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 	names = i;
 	if (names > MAX_INITIATOR) {
 		ISTGT_ERRLOG("%d > MAX_INITIATOR\n", names);
-		return -1;
+		return (-1);
 	}
 	for (i = 0; ; i++) {
 		val = istgt_get_nval(sp, "Netmask", i);
@@ -705,7 +728,7 @@ istgt_add_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 	masks = i;
 	if (masks > MAX_NETMASK) {
 		ISTGT_ERRLOG("%d > MAX_NETMASK\n", masks);
-		return -1;
+		return (-1);
 	}
 
 	MTX_LOCK(&istgt->mutex);
@@ -728,7 +751,8 @@ istgt_add_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 			val = istgt_get_nval(sp, "InitiatorName", i);
 			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 			    "InitiatorName %s\n", val);
-			istgt->initiator_group[idx].initiators[i] = xstrdup(val);
+			istgt->initiator_group[idx].initiators[i] =
+			    xstrdup(val);
 		}
 		for (i = 0; i < masks; i++) {
 			val = istgt_get_nval(sp, "Netmask", i);
@@ -740,11 +764,12 @@ istgt_add_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 		istgt->ninitiator_group = idx;
 	} else {
 		MTX_UNLOCK(&istgt->mutex);
-		ISTGT_ERRLOG("ninitiator_group(%d) >= MAX_INITIATOR_GROUP\n", idx);
-		return -1;
+		ISTGT_ERRLOG("ninitiator_group(%d) >= MAX_INITIATOR_GROUP\n",
+		    idx);
+		return (-1);
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return 0;
+	return (0);
 }
 
 static int
@@ -756,24 +781,24 @@ istgt_ig_match_all(INITIATOR_GROUP *igp, CF_SECTION *sp)
 	for (i = 0; i < igp->ninitiators; i++) {
 		val = istgt_get_nval(sp, "InitiatorName", i);
 		if (val == NULL)
-			return 0;
+			return (0);
 		if (strcmp(igp->initiators[i], val) != 0)
-			return 0;
+			return (0);
 	}
 	val = istgt_get_nval(sp, "InitiatorName", i);
 	if (val != NULL)
-		return 0;
+		return (0);
 	for (i = 0; i < igp->nnetmasks; i++) {
 		val = istgt_get_nval(sp, "Netmask", i);
 		if (val == NULL)
-			return 0;
+			return (0);
 		if (strcmp(igp->netmasks[i], val) != 0)
-			return 0;
+			return (0);
 	}
 	val = istgt_get_nval(sp, "Netmask", i);
 	if (val != NULL)
-		return 0;
-	return 1;
+		return (0);
+	return (1);
 }
 
 static int
@@ -786,7 +811,8 @@ istgt_update_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 	int masks;
 	int i;
 
-	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "update initiator group %d\n", sp->num);
+	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "update initiator group %d\n",
+	    sp->num);
 
 	val = istgt_get_val(sp, "Comment");
 	if (val != NULL) {
@@ -802,7 +828,7 @@ istgt_update_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 	names = i;
 	if (names > MAX_INITIATOR) {
 		ISTGT_ERRLOG("%d > MAX_INITIATOR\n", names);
-		return -1;
+		return (-1);
 	}
 	for (i = 0; ; i++) {
 		val = istgt_get_nval(sp, "Netmask", i);
@@ -812,7 +838,7 @@ istgt_update_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 	masks = i;
 	if (masks > MAX_NETMASK) {
 		ISTGT_ERRLOG("%d > MAX_NETMASK\n", masks);
-		return -1;
+		return (-1);
 	}
 
 	MTX_LOCK(&istgt->mutex);
@@ -826,12 +852,12 @@ istgt_update_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 	if (idx < 0) {
 		MTX_UNLOCK(&istgt->mutex);
 		ISTGT_ERRLOG("can't find IG%d\n", sp->num);
-		return -1;
+		return (-1);
 	}
 	if (istgt_ig_match_all(&istgt->initiator_group[i], sp)) {
 		MTX_UNLOCK(&istgt->mutex);
 		ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "skip for IG%d\n", sp->num);
-		return 0;
+		return (0);
 	}
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 	    "Index=%d, Tag=%d, Names=%d, Masks=%d\n",
@@ -854,9 +880,9 @@ istgt_update_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 	istgt->initiator_group[idx].nnetmasks = masks;
 	alloc_len = sizeof (char *) * masks;
 	istgt->initiator_group[idx].netmasks = xmalloc(alloc_len);
-	//istgt->initiator_group[idx].ref = 0;
-	//istgt->initiator_group[idx].idx = idx;
-	//istgt->initiator_group[idx].tag = sp->num;
+	// istgt->initiator_group[idx].ref = 0;
+	// istgt->initiator_group[idx].idx = idx;
+	// istgt->initiator_group[idx].tag = sp->num;
 
 	/* copy new strings */
 	for (i = 0; i < names; i++) {
@@ -872,7 +898,7 @@ istgt_update_initiator_group(ISTGT_Ptr istgt, CF_SECTION *sp)
 	}
 	istgt_lu_update_ig(istgt, &istgt->initiator_group[idx]);
 	MTX_UNLOCK(&istgt->mutex);
-	return 1;
+	return (1);
 }
 
 static int
@@ -886,17 +912,17 @@ istgt_build_initiator_group_array(ISTGT_Ptr istgt)
 		if (sp->type == ST_INITIATORGROUP) {
 			if (sp->num == 0) {
 				ISTGT_ERRLOG("Group 0 is invalid\n");
-				return -1;
+				return (-1);
 			}
 			rc = istgt_add_initiator_group(istgt, sp);
 			if (rc < 0) {
 				ISTGT_ERRLOG("add_initiator_group() failed\n");
-				return -1;
+				return (-1);
 			}
 		}
 		sp = sp->next;
 	}
-	return 0;
+	return (0);
 }
 
 static void
@@ -904,7 +930,8 @@ istgt_destory_initiator_group_array(ISTGT_Ptr istgt)
 {
 	int i, j;
 
-	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "istgt_destory_initiator_group_array\n");
+	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
+	    "istgt_destory_initiator_group_array\n");
 	MTX_LOCK(&istgt->mutex);
 	for (i = 0; i < istgt->ninitiator_group; i++) {
 		for (j = 0; j < istgt->initiator_group[i].ninitiators; j++) {
@@ -945,7 +972,7 @@ istgt_build_uctl_portal(ISTGT_Ptr istgt)
 	sp = istgt_find_cf_section(istgt->config, "UnitControl");
 	if (sp == NULL) {
 		ISTGT_ERRLOG("find_cf_section failed()\n");
-		return -1;
+		return (-1);
 	}
 
 	for (i = 0; ; i++) {
@@ -957,13 +984,13 @@ istgt_build_uctl_portal(ISTGT_Ptr istgt)
 		portal = istgt_get_nmval(sp, "Portal", i, 1);
 		if (label == NULL || portal == NULL) {
 			ISTGT_ERRLOG("uctl portal error\n");
-			return -1;
+			return (-1);
 		}
 
 		rc = istgt_parse_portal(portal, &host, &port, &que);
 		if (rc < 0) {
 			ISTGT_ERRLOG("parse uctl portal error\n");
-			return -1;
+			return (-1);
 		}
 
 		idx = istgt->nuctl_portal;
@@ -986,11 +1013,11 @@ istgt_build_uctl_portal(ISTGT_Ptr istgt)
 			ISTGT_ERRLOG("nportal(%d) >= MAX_UCPORTAL\n", idx);
 			xfree(host);
 			xfree(port);
-			return -1;
+			return (-1);
 		}
 	}
 
-	return 0;
+	return (0);
 }
 
 static void
@@ -1025,20 +1052,24 @@ istgt_open_uctl_portal(ISTGT_Ptr istgt)
 	for (i = 0; i < istgt->nuctl_portal; i++) {
 		if (istgt->uctl_portal[i].sock < 0) {
 			port = (int)strtol(istgt->uctl_portal[i].port, NULL, 0);
-			sock = istgt_listen_unx(ISTGT_UCTL_UNXPATH, istgt->uctl_portal[i].que);
+			sock = istgt_listen_unx(ISTGT_UCTL_UNXPATH,
+			    istgt->uctl_portal[i].que);
 			if (sock < 0) {
-				ISTGT_ERRLOG("listen error for unx_domain %s, trying tcp listener\n", ISTGT_UCTL_UNXPATH);
-				sock = istgt_listen(istgt->uctl_portal[i].host, port, istgt->uctl_portal[i].que);
+				ISTGT_ERRLOG("listen error for unx_domain %s, "
+				    "trying tcp listener\n",
+				    ISTGT_UCTL_UNXPATH);
+				sock = istgt_listen(istgt->uctl_portal[i].host,
+				    port, istgt->uctl_portal[i].que);
 			}
 			if (sock < 0) {
 				ISTGT_ERRLOG("listen error %.64s:%d\n",
 				    istgt->uctl_portal[i].host, port);
-				return -1;
+				return (-1);
 			}
 			istgt->uctl_portal[i].sock = sock;
 		}
 	}
-	return 0;
+	return (0);
 }
 
 static int
@@ -1058,7 +1089,7 @@ istgt_close_uctl_portal(ISTGT_Ptr istgt)
 			istgt->uctl_portal[i].sock = -1;
 		}
 	}
-	return 0;
+	return (0);
 }
 
 static int
@@ -1073,18 +1104,18 @@ istgt_write_pidfile(ISTGT_Ptr istgt)
 	if (rc != 0) {
 		if (errno != ENOENT) {
 			ISTGT_ERRLOG("pidfile remove error %d\n", errno);
-			return -1;
+			return (-1);
 		}
 	}
 	fp = fopen(istgt->pidfile, "w");
 	if (fp == NULL) {
 		ISTGT_ERRLOG("pidfile open error %d\n", errno);
-		return -1;
+		return (-1);
 	}
 	pid = getpid();
 	fprintf(fp, "%d\n", (int)pid);
 	fclose(fp);
-	return 0;
+	return (0);
 }
 
 static void
@@ -1109,16 +1140,16 @@ istgt_get_nmval(CF_SECTION *sp, const char *key, int idx1, int idx2)
 
 	ip = istgt_find_cf_nitem(sp, key, idx1);
 	if (ip == NULL)
-		return NULL;
+		return (NULL);
 	vp = ip->val;
 	if (vp == NULL)
-		return NULL;
+		return (NULL);
 	for (i = 0; vp != NULL; vp = vp->next) {
 		if (i == idx2)
-			return vp->value;
+			return (vp->value);
 		i++;
 	}
-	return NULL;
+	return (NULL);
 }
 
 char *
@@ -1129,17 +1160,17 @@ istgt_get_nval(CF_SECTION *sp, const char *key, int idx)
 
 	ip = istgt_find_cf_nitem(sp, key, idx);
 	if (ip == NULL)
-		return NULL;
+		return (NULL);
 	vp = ip->val;
 	if (vp == NULL)
-		return NULL;
-	return vp->value;
+		return (NULL);
+	return (vp->value);
 }
 
 char *
 istgt_get_val(CF_SECTION *sp, const char *key)
 {
-	return istgt_get_nval(sp, key, 0);
+	return (istgt_get_nval(sp, key, 0));
 }
 
 int
@@ -1150,15 +1181,15 @@ istgt_get_nintval(CF_SECTION *sp, const char *key, int idx)
 
 	v = istgt_get_nval(sp, key, idx);
 	if (v == NULL)
-		return -1;
+		return (-1);
 	value = (int)strtol(v, NULL, 10);
-	return value;
+	return (value);
 }
 
 int
 istgt_get_intval(CF_SECTION *sp, const char *key)
 {
-	return istgt_get_nintval(sp, key, 0);
+	return (istgt_get_nintval(sp, key, 0));
 }
 
 static const char *
@@ -1169,7 +1200,7 @@ istgt_get_log_facility(CONFIG *config)
 
 	sp = istgt_find_cf_section(config, "Global");
 	if (sp == NULL) {
-		return NULL;
+		return (NULL);
 	}
 	logfacility = istgt_get_val(sp, "LogFacility");
 	if (logfacility == NULL) {
@@ -1181,7 +1212,7 @@ istgt_get_log_facility(CONFIG *config)
 	}
 #endif
 
-	return logfacility;
+	return (logfacility);
 }
 
 static int
@@ -1216,7 +1247,7 @@ istgt_init(ISTGT_Ptr istgt)
 	sp = istgt_find_cf_section(istgt->config, "Global");
 	if (sp == NULL) {
 		ISTGT_ERRLOG("find_cf_section failed()\n");
-		return -1;
+		return (-1);
 	}
 
 	val = istgt_get_val(sp, "Comment");
@@ -1267,7 +1298,7 @@ istgt_init(ISTGT_Ptr istgt)
 	    istgt->livefile);
 #endif
 	clear_resv = istgt_get_intval(sp, "ClearResv");
-	if(clear_resv < 0) {
+	if (clear_resv < 0) {
 		clear_resv = 1;
 	}
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "clear_resv = %d", clear_resv);
@@ -1289,13 +1320,14 @@ istgt_init(ISTGT_Ptr istgt)
 	    istgt->nodebase);
 
 	OperationalMode = istgt_get_intval(sp, "OperationalMode");
-	if(OperationalMode < 1) {
+	if (OperationalMode < 1) {
 		OperationalMode = DEFAULT_OPERATIONAL_MODE;
 	}
 	istgt->OperationalMode = OperationalMode;
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "Operational mode %s\n",
-		(istgt->OperationalMode)? "Fake_Mode_Of_Operation" : "Normal_Mode_Of_Operation");
-	
+	    (istgt->OperationalMode) ?
+	    "Fake_Mode_Of_Operation" : "Normal_Mode_Of_Operation");
+
 	MaxSessions = istgt_get_intval(sp, "MaxSessions");
 	if (MaxSessions < 1) {
 		MaxSessions = DEFAULT_MAX_SESSIONS;
@@ -1312,24 +1344,25 @@ istgt_init(ISTGT_Ptr istgt)
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "MaxConnections %d\n",
 	    istgt->MaxConnections);
 
-	/* Set number of luworker threads from DEFAULT_CONF */ 
+	/* Set number of luworker threads from DEFAULT_CONF */
 	if (g_num_luworkers == 0) {
 		g_num_luworkers = istgt_get_intval(sp, "Luworkers");
-		if (g_num_luworkers < 1 ||g_num_luworkers > (ISTGT_MAX_NUM_LUWORKERS - 1)) {
+		if (g_num_luworkers < 1 ||
+		    g_num_luworkers > (ISTGT_MAX_NUM_LUWORKERS - 1)) {
 			g_num_luworkers = ISTGT_NUM_LUWORKERS_DEFAULT;
 		}
 	}
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "Luworkers %d\n",
 	    g_num_luworkers);
-	
+
 	/* limited to 16bits - RFC3720(12.2) */
 	if (MaxSessions > 0xffff) {
 		ISTGT_ERRLOG("over 65535 sessions are not supported\n");
-		return -1;
+		return (-1);
 	}
 	if (MaxConnections > 0xffff) {
 		ISTGT_ERRLOG("over 65535 connections are not supported\n");
-		return -1;
+		return (-1);
 	}
 
 	MaxOutstandingR2T = istgt_get_intval(sp, "MaxOutstandingR2T");
@@ -1360,17 +1393,17 @@ istgt_init(ISTGT_Ptr istgt)
 	if (istgt->MaxOutstandingR2T > 65535) {
 		ISTGT_ERRLOG("MaxOutstandingR2T(%d) > 65535\n",
 		    istgt->MaxOutstandingR2T);
-		return -1;
+		return (-1);
 	}
 	if (istgt->DefaultTime2Wait > 3600) {
 		ISTGT_ERRLOG("DefaultTime2Wait(%d) > 3600\n",
 		    istgt->DefaultTime2Wait);
-		return -1;
+		return (-1);
 	}
 	if (istgt->DefaultTime2Retain > 3600) {
 		ISTGT_ERRLOG("DefaultTime2Retain(%d) > 3600\n",
 		    istgt->DefaultTime2Retain);
-		return -1;
+		return (-1);
 	}
 
 	FirstBurstLength = istgt_get_intval(sp, "FirstBurstLength");
@@ -1402,32 +1435,32 @@ istgt_init(ISTGT_Ptr istgt)
 	if (istgt->MaxBurstLength < 512) {
 		ISTGT_ERRLOG("MaxBurstLength(%d) < 512\n",
 		    istgt->MaxBurstLength);
-		return -1;
+		return (-1);
 	}
 	if (istgt->FirstBurstLength < 512) {
 		ISTGT_ERRLOG("FirstBurstLength(%d) < 512\n",
 		    istgt->FirstBurstLength);
-		return -1;
+		return (-1);
 	}
 	if (istgt->FirstBurstLength > istgt->MaxBurstLength) {
 		ISTGT_ERRLOG("FirstBurstLength(%d) > MaxBurstLength(%d)\n",
 		    istgt->FirstBurstLength, istgt->MaxBurstLength);
-		return -1;
+		return (-1);
 	}
 	if (istgt->MaxBurstLength > 0x00ffffff) {
 		ISTGT_ERRLOG("MaxBurstLength(%d) > 0x00ffffff\n",
 		    istgt->MaxBurstLength);
-		return -1;
+		return (-1);
 	}
 	if (istgt->MaxRecvDataSegmentLength < 512) {
 		ISTGT_ERRLOG("MaxRecvDataSegmentLength(%d) < 512\n",
 		    istgt->MaxRecvDataSegmentLength);
-		return -1;
+		return (-1);
 	}
 	if (istgt->MaxRecvDataSegmentLength > 0x00ffffff) {
 		ISTGT_ERRLOG("MaxRecvDataSegmentLength(%d) > 0x00ffffff\n",
 		    istgt->MaxRecvDataSegmentLength);
-		return -1;
+		return (-1);
 	}
 
 	val = istgt_get_val(sp, "InitialR2T");
@@ -1440,11 +1473,11 @@ istgt_init(ISTGT_Ptr istgt)
 		InitialR2T = 0;
 #else
 		ISTGT_ERRLOG("not supported value %s\n", val);
-		return -1;
+		return (-1);
 #endif
 	} else {
 		ISTGT_ERRLOG("unknown value %s\n", val);
-		return -1;
+		return (-1);
 	}
 	istgt->InitialR2T = InitialR2T;
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "InitialR2T %s\n",
@@ -1459,7 +1492,7 @@ istgt_init(ISTGT_Ptr istgt)
 		ImmediateData = 0;
 	} else {
 		ISTGT_ERRLOG("unknown value %s\n", val);
-		return -1;
+		return (-1);
 	}
 	istgt->ImmediateData = ImmediateData;
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "ImmediateData %s\n",
@@ -1475,11 +1508,11 @@ istgt_init(ISTGT_Ptr istgt)
 		DataPDUInOrder = 0;
 #else
 		ISTGT_ERRLOG("not supported value %s\n", val);
-		return -1;
+		return (-1);
 #endif
 	} else {
 		ISTGT_ERRLOG("unknown value %s\n", val);
-		return -1;
+		return (-1);
 	}
 	istgt->DataPDUInOrder = DataPDUInOrder;
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "DataPDUInOrder %s\n",
@@ -1495,11 +1528,11 @@ istgt_init(ISTGT_Ptr istgt)
 		DataSequenceInOrder = 0;
 #else
 		ISTGT_ERRLOG("not supported value %s\n", val);
-		return -1;
+		return (-1);
 #endif
 	} else {
 		ISTGT_ERRLOG("unknown value %s\n", val);
-		return -1;
+		return (-1);
 	}
 	istgt->DataSequenceInOrder = DataSequenceInOrder;
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "DataSequenceInOrder %s\n",
@@ -1515,18 +1548,18 @@ istgt_init(ISTGT_Ptr istgt)
 		ErrorRecoveryLevel = 1;
 #else
 		ISTGT_ERRLOG("not supported value %d\n", ErrorRecoveryLevel);
-		return -1;
+		return (-1);
 #endif
 	} else if (ErrorRecoveryLevel == 2) {
 #if 0
 		ErrorRecoveryLevel = 2;
 #else
 		ISTGT_ERRLOG("not supported value %d\n", ErrorRecoveryLevel);
-		return -1;
+		return (-1);
 #endif
 	} else {
 		ISTGT_ERRLOG("not supported value %d\n", ErrorRecoveryLevel);
-		return -1;
+		return (-1);
 	}
 	istgt->ErrorRecoveryLevel = ErrorRecoveryLevel;
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "ErrorRecoveryLevel %d\n",
@@ -1555,7 +1588,7 @@ istgt_init(ISTGT_Ptr istgt)
 	if (maxr2t > MAX_R2T) {
 		ISTGT_ERRLOG("MaxR2T(%d) > %d\n",
 		    maxr2t, MAX_R2T);
-		return -1;
+		return (-1);
 	}
 	istgt->maxr2t = maxr2t;
 	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "MaxR2T %d\n",
@@ -1585,12 +1618,13 @@ istgt_init(ISTGT_Ptr istgt)
 				istgt->req_discovery_auth_mutual = 0;
 			} else {
 				ISTGT_ERRLOG("unknown auth\n");
-				return -1;
+				return (-1);
 			}
 		}
-		if (istgt->req_discovery_auth_mutual && !istgt->req_discovery_auth) {
+		if (istgt->req_discovery_auth_mutual &&
+		    !istgt->req_discovery_auth) {
 			ISTGT_ERRLOG("Mutual but not CHAP\n");
-			return -1;
+			return (-1);
 		}
 	}
 	if (istgt->no_discovery_auth != 0) {
@@ -1615,15 +1649,15 @@ istgt_init(ISTGT_Ptr istgt)
 			ag_tag_i = 0;
 		} else {
 			if (strncasecmp(ag_tag, "AuthGroup",
-				strlen("AuthGroup")) != 0
-			    || sscanf(ag_tag, "%*[^0-9]%d", &ag_tag_i) != 1) {
+			    strlen("AuthGroup")) != 0 ||
+			    sscanf(ag_tag, "%*[^0-9]%d", &ag_tag_i) != 1) {
 				ISTGT_ERRLOG("auth group error\n");
-				return -1;
+				return (-1);
 			}
 			if (ag_tag_i == 0) {
 				ISTGT_ERRLOG("invalid auth group %d\n",
 				    ag_tag_i);
-				return -1;
+				return (-1);
 			}
 		}
 		istgt->discovery_auth_group = ag_tag_i;
@@ -1640,78 +1674,82 @@ istgt_init(ISTGT_Ptr istgt)
 	rc = istgt_uctl_init(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("istgt_uctl_init() failed\n");
-		return -1;
+		return (-1);
 	}
 	rc = istgt_build_uctl_portal(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("istgt_build_uctl_portal() failed\n");
-		return -1;
+		return (-1);
 	}
 	rc = istgt_build_portal_group_array(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("istgt_build_portal_array() failed\n");
-		return -1;
+		return (-1);
 	}
 	rc = istgt_build_initiator_group_array(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("build_initiator_group_array() failed\n");
-		return -1;
+		return (-1);
 	}
 
 	rc = pthread_attr_init(&istgt->attr);
 	if (rc != 0) {
 		ISTGT_ERRLOG("pthread_attr_init() failed\n");
-		return -1;
+		return (-1);
 	}
 	rc = pthread_attr_getstacksize(&istgt->attr, &stacksize);
 	if (rc != 0) {
 		ISTGT_ERRLOG("pthread_attr_getstacksize() failed\n");
-		return -1;
+		return (-1);
 	}
-	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "current thread stack = %zd\n", stacksize);
+	ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "current thread stack = %zd\n",
+	    stacksize);
 	if (stacksize < ISTGT_STACKSIZE) {
 		stacksize = ISTGT_STACKSIZE;
-		ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "new thread stack = %zd\n", stacksize);
+		ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "new thread stack = %zd\n",
+		    stacksize);
 		rc = pthread_attr_setstacksize(&istgt->attr, stacksize);
 		if (rc != 0) {
 			ISTGT_ERRLOG("pthread_attr_setstacksize() failed\n");
-			return -1;
+			return (-1);
 		}
 	}
 
 	rc = pthread_mutexattr_init(&istgt->mutex_attr);
 	if (rc != 0) {
 		ISTGT_ERRLOG("mutexattr_init() failed\n");
-		return -1;
+		return (-1);
 	}
 #ifdef HAVE_PTHREAD_MUTEX_ADAPTIVE_NP
-	rc = pthread_mutexattr_settype(&istgt->mutex_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
+	rc = pthread_mutexattr_settype(&istgt->mutex_attr,
+	    PTHREAD_MUTEX_ADAPTIVE_NP);
 #else
-	rc = pthread_mutexattr_settype(&istgt->mutex_attr, PTHREAD_MUTEX_ERRORCHECK);
+	rc = pthread_mutexattr_settype(&istgt->mutex_attr,
+	    PTHREAD_MUTEX_ERRORCHECK);
 #endif
 	if (rc != 0) {
 		ISTGT_ERRLOG("mutexattr_settype() failed\n");
-		return -1;
+		return (-1);
 	}
 	rc = pthread_mutex_init(&istgt->mutex, NULL);
 	if (rc != 0) {
 		ISTGT_ERRLOG("mutex_init() failed\n");
-		return -1;
+		return (-1);
 	}
 	rc = pthread_mutex_init(&istgt->state_mutex, &istgt->mutex_attr);
 	if (rc != 0) {
 		ISTGT_ERRLOG("mutex_init() failed\n");
-		return -1;
+		return (-1);
 	}
 	rc = pthread_mutex_init(&istgt->reload_mutex, &istgt->mutex_attr);
 	if (rc != 0) {
 		ISTGT_ERRLOG("mutex_init() failed\n");
-		return -1;
+		return (-1);
 	}
 	rc = pthread_cond_init(&istgt->reload_cond, NULL);
 	if (rc != 0) {
 		ISTGT_ERRLOG("cond_init() failed\n");
-		return -1;
+		return (-1);
 	}
 
 	rc = pipe(istgt->sig_pipe);
@@ -1719,14 +1757,14 @@ istgt_init(ISTGT_Ptr istgt)
 		ISTGT_ERRLOG("pipe() failed\n");
 		istgt->sig_pipe[0] = -1;
 		istgt->sig_pipe[1] = -1;
-		return -1;
+		return (-1);
 	}
 
 	/* XXX TODO: add initializer */
 
 	istgt_set_state(istgt, ISTGT_STATE_INITIALIZED);
 
-	return 0;
+	return (0);
 }
 
 static void
@@ -1770,12 +1808,12 @@ istgt_pg_exist_num(CONFIG *config, int num)
 	while (sp != NULL) {
 		if (sp->type == ST_PORTALGROUP) {
 			if (sp->num == num) {
-				return 1;
+				return (1);
 			}
 		}
 		sp = sp->next;
 	}
-	return -1;
+	return (-1);
 }
 
 static PORTAL_GROUP *
@@ -1784,16 +1822,16 @@ istgt_get_tag_portal(ISTGT_Ptr istgt, int tag)
 	int i;
 
 	if (tag == 0)
-		return NULL;
+		return (NULL);
 	MTX_LOCK(&istgt->mutex);
 	for (i = 0; i < istgt->nportal_group; i++) {
 		if (istgt->portal_group[i].tag == tag) {
 			MTX_UNLOCK(&istgt->mutex);
-			return &istgt->portal_group[i];
+			return (&istgt->portal_group[i]);
 		}
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return NULL;
+	return (NULL);
 }
 
 #if 0
@@ -1813,15 +1851,15 @@ istgt_get_num_of_portals(CF_SECTION *sp)
 		rc = istgt_parse_portal(portal, NULL, NULL);
 		if (rc < 0) {
 			ISTGT_ERRLOG("parse portal error (%s)\n", portal);
-			return -1;
+			return (-1);
 		}
 	}
 	portals = i;
 	if (portals > MAX_PORTAL) {
 		ISTGT_ERRLOG("%d > MAX_PORTAL\n", portals);
-		return -1;
+		return (-1);
 	}
-	return portals;
+	return (portals);
 }
 #endif
 
@@ -1841,7 +1879,7 @@ istgt_pg_reload_delete(ISTGT_Ptr istgt)
 	rc = write(istgt->sig_pipe[1], tmp, RELOAD_CMD_LENGTH);
 	if (rc < 0 || rc != RELOAD_CMD_LENGTH) {
 		ISTGT_ERRLOG("write() failed\n");
-		return -1;
+		return (-1);
 	}
 	/* wait for completion */
 	MTX_LOCK(&istgt->reload_mutex);
@@ -1853,10 +1891,10 @@ istgt_pg_reload_delete(ISTGT_Ptr istgt)
 	if (rc < 0) {
 		if (istgt_get_state(istgt) != ISTGT_STATE_RUNNING) {
 			ISTGT_WARNLOG("%s\n", "pg_reload abort");
-			return -1;
+			return (-1);
 		}
 	}
-	return 0;
+	return (0);
 }
 
 static int
@@ -1874,7 +1912,7 @@ istgt_pg_reload_update(ISTGT_Ptr istgt)
 	rc = write(istgt->sig_pipe[1], tmp, RELOAD_CMD_LENGTH);
 	if (rc < 0 || rc != RELOAD_CMD_LENGTH) {
 		ISTGT_ERRLOG("write() failed\n");
-		return -1;
+		return (-1);
 	}
 	/* wait for completion */
 	MTX_LOCK(&istgt->reload_mutex);
@@ -1886,10 +1924,10 @@ istgt_pg_reload_update(ISTGT_Ptr istgt)
 	if (rc < 0) {
 		if (istgt_get_state(istgt) != ISTGT_STATE_RUNNING) {
 			ISTGT_WARNLOG("%s\n", "pg_reload abort");
-			return -1;
+			return (-1);
 		}
 	}
-	return 0;
+	return (0);
 }
 
 static int
@@ -1901,12 +1939,12 @@ istgt_ig_exist_num(CONFIG *config, int num)
 	while (sp != NULL) {
 		if (sp->type == ST_INITIATORGROUP) {
 			if (sp->num == num) {
-				return 1;
+				return (1);
 			}
 		}
 		sp = sp->next;
 	}
-	return -1;
+	return (-1);
 }
 
 static int
@@ -1961,7 +1999,7 @@ istgt_ig_reload_delete(ISTGT_Ptr istgt)
 		}
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return 0;
+	return (0);
 }
 
 static int
@@ -1979,7 +2017,8 @@ istgt_ig_reload_update(ISTGT_Ptr istgt)
 				ISTGT_ERRLOG("Group 0 is invalid\n");
 				goto skip_ig;
 			}
-			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "IG reload tag=%d\n", sp->num);
+			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "IG reload tag=%d\n",
+			    sp->num);
 #if 0
 			rc = istgt_ig_exist_num(istgt->config_old, sp->num);
 #else
@@ -1996,26 +2035,29 @@ istgt_ig_reload_update(ISTGT_Ptr istgt)
 			if (rc < 0) {
 				rc = istgt_add_initiator_group(istgt, sp);
 				if (rc < 0) {
-					ISTGT_ERRLOG("add_initiator_group() failed\n");
+					ISTGT_ERRLOG("add_initiator_group() "
+					    "failed\n");
 					goto skip_ig;
 				}
 				ISTGT_NOTICELOG("add IG%d\n", sp->num);
 			} else {
 				rc = istgt_update_initiator_group(istgt, sp);
 				if (rc < 0) {
-					ISTGT_ERRLOG("update_initiator_group() failed\n");
+					ISTGT_ERRLOG("update_initiator_group() "
+					    "failed\n");
 					goto skip_ig;
 				} else if (rc == 0) {
-					// not modified
+					//  not modified
 				} else if (rc > 0) {
-					ISTGT_NOTICELOG("update IG%d\n", sp->num);
+					ISTGT_NOTICELOG("update IG%d\n",
+					    sp->num);
 				}
 			}
 		}
 	skip_ig:
 		sp = sp->next;
 	}
-	return 0;
+	return (0);
 }
 
 int  istgtversn = 0;
@@ -2037,12 +2079,12 @@ istgt_reload(ISTGT_Ptr istgt)
 	rc = istgt_read_config(config_new, config_file);
 	if (rc < 0) {
 		ISTGT_ERRLOG("config error\n");
-		return -1;
+		return (-1);
 	}
 	if (config_new->section == NULL) {
 		ISTGT_ERRLOG("empty config\n");
 		istgt_free_config(config_new);
-		return -1;
+		return (-1);
 	}
 	istgt->config = config_new;
 	istgt->config_old = config_old;
@@ -2053,39 +2095,40 @@ istgt_reload(ISTGT_Ptr istgt)
 	rc = istgt_lu_reload_delete(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("LU reload del error\n");
-		return -1;
+		return (-1);
 	}
 	rc = istgt_ig_reload_delete(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("IG reload del error\n");
-		return -1;
+		return (-1);
 	}
 	rc = istgt_pg_reload_delete(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("PG reload del error\n");
-		return -1;
+		return (-1);
 	}
 
 	rc = istgt_pg_reload_update(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("PG reload add error\n");
-		return -1;
+		return (-1);
 	}
 	rc = istgt_ig_reload_update(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("IG reload add error\n");
-		return -1;
+		return (-1);
 	}
 	rc = istgt_lu_reload_update(istgt);
 	if (rc < 0) {
 		ISTGT_ERRLOG("LU reload add error\n");
-		return -1;
+		return (-1);
 	}
 
 	istgt->config_old = NULL;
 	istgt_free_config(config_old);
-	ISTGT_NOTICELOG("reload configuration#%"PRIu32" end   [%s]\n", gen, istgtvers);
-	return 0;
+	ISTGT_NOTICELOG("reload configuration#%"PRIu32" end [%s]\n",
+	    gen, istgtvers);
+	return (0);
 }
 
 static PORTAL *
@@ -2094,18 +2137,18 @@ istgt_get_sock_portal(ISTGT_Ptr istgt, int sock)
 	int i, j;
 
 	if (sock < 0)
-		return NULL;
+		return (NULL);
 	MTX_LOCK(&istgt->mutex);
 	for (i = 0; i < istgt->nportal_group; i++) {
 		for (j = 0; j < istgt->portal_group[i].nportals; j++) {
 			if (istgt->portal_group[i].portals[j]->sock == sock) {
 				MTX_UNLOCK(&istgt->mutex);
-				return istgt->portal_group[i].portals[j];
+				return (istgt->portal_group[i].portals[j]);
 			}
 		}
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return NULL;
+	return (NULL);
 }
 
 static int
@@ -2120,13 +2163,13 @@ istgt_pg_delete(ISTGT_Ptr istgt)
 		pgp = &istgt->portal_group[i];
 		if (pgp->tag == 0)
 			continue;
-		ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "PG reload idx=%d, tag=%d, (%d)\n",
-		    i, pgp->tag, istgt->nportal_group);
+		ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "PG reload idx=%d, tag=%d, "
+		    "(%d)\n", i, pgp->tag, istgt->nportal_group);
 		rc = istgt_pg_exist_num(istgt->config, pgp->tag);
 		if (rc < 0) {
 			if (pgp->ref != 0) {
-				ISTGT_ERRLOG("delete request for referenced PG%d\n",
-				    pgp->tag);
+				ISTGT_ERRLOG("delete request for "
+				    "referenced PG%d\n", pgp->tag);
 			} else {
 				ISTGT_NOTICELOG("delete PG%d\n", pgp->tag);
 				pgp->tag = 0;
@@ -2135,7 +2178,7 @@ istgt_pg_delete(ISTGT_Ptr istgt)
 		}
 	}
 	MTX_UNLOCK(&istgt->mutex);
-	return 0;
+	return (0);
 }
 
 static int
@@ -2154,7 +2197,8 @@ istgt_pg_update(ISTGT_Ptr istgt)
 				ISTGT_ERRLOG("Group 0 is invalid\n");
 				goto skip_pg;
 			}
-			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "PG reload tag=%d\n", sp->num);
+			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "PG reload tag=%d\n",
+			    sp->num);
 #if 0
 			rc = istgt_pg_exist_num(istgt->config_old, sp->num);
 #else
@@ -2171,7 +2215,8 @@ istgt_pg_update(ISTGT_Ptr istgt)
 			if (rc < 0) {
 				rc = istgt_add_portal_group(istgt, sp, &pgp_idx);
 				if (rc < 0) {
-					ISTGT_ERRLOG("add_portal_group() failed\n");
+					ISTGT_ERRLOG("add_portal_group() "
+					    "failed\n");
 					goto skip_pg;
 				}
 				MTX_LOCK(&istgt->mutex);
@@ -2180,13 +2225,14 @@ istgt_pg_update(ISTGT_Ptr istgt)
 				MTX_UNLOCK(&istgt->mutex);
 				ISTGT_NOTICELOG("add PG%d\n", sp->num);
 			} else {
-				//portals = istgt_get_num_of_portals(sp);
+				// portals = istgt_get_num_of_portals(sp);
 				pgp = istgt_get_tag_portal(istgt, sp->num);
 				if (istgt_pg_match_all(pgp, sp)) {
 					ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 					    "skip for PG%d\n", sp->num);
 				} else if (pgp->ref != 0) {
-					ISTGT_ERRLOG("update request for referenced PG%d\n",
+					ISTGT_ERRLOG("update request for "
+					    " referenced PG%d\n",
 					    pgp->tag);
 				} else {
 					/* delete old sock */
@@ -2194,19 +2240,24 @@ istgt_pg_update(ISTGT_Ptr istgt)
 					pgp_idx = pgp->idx;
 					(void) istgt_close_portal_group(pgp);
 					MTX_UNLOCK(&istgt->mutex);
-					rc = istgt_update_portal_group(istgt, sp, &pgp_idx);
+					rc = istgt_update_portal_group(istgt,
+					    sp, &pgp_idx);
 					if (rc < 0) {
-						ISTGT_ERRLOG("update_portal_group() failed\n");
+						ISTGT_ERRLOG(
+						    "update_portal_group() "
+						    "failed\n");
 						goto skip_pg;
 					} else if (rc == 0) {
-						// not modified
+						//  not modified
 					} else if (rc > 0) {
 						/* add new sock */
 						MTX_LOCK(&istgt->mutex);
-						pgp = &istgt->portal_group[pgp_idx];
+						pgp =
+						    &istgt->portal_group[pgp_idx];
 						(void) istgt_open_portal_group(pgp);
 						MTX_UNLOCK(&istgt->mutex);
-						ISTGT_NOTICELOG("update PG%d\n", sp->num);
+						ISTGT_NOTICELOG("update PG%d\n",
+						    sp->num);
 					}
 				}
 			}
@@ -2214,7 +2265,7 @@ istgt_pg_update(ISTGT_Ptr istgt)
 	skip_pg:
 		sp = sp->next;
 	}
-	return 0;
+	return (0);
 }
 
 static int
@@ -2222,13 +2273,13 @@ istgt_acceptor(ISTGT_Ptr istgt)
 {
 	PORTAL *pp;
 	int epfd;
-	//int kq;
+	// int kq;
 	int epsocks[MAX_PORTAL_GROUP + MAX_UCPORTAL];
-	//int kqsocks[MAX_PORTAL_GROUP + MAX_UCPORTAL];
+	// int kqsocks[MAX_PORTAL_GROUP + MAX_UCPORTAL];
 	struct epoll_event event, events;
-	//struct kevent kev;
+	// struct kevent kev;
 	struct timespec ep_timeout;
-	//struct timespec kev_timeout;
+	// struct timespec kev_timeout;
 	struct sockaddr_storage sa;
 	socklen_t salen;
 	int sock;
@@ -2239,7 +2290,7 @@ istgt_acceptor(ISTGT_Ptr istgt)
 
 	if (istgt_get_state(istgt) != ISTGT_STATE_INITIALIZED) {
 		ISTGT_ERRLOG("not initialized\n");
-		return -1;
+		return (-1);
 	}
 	/* now running main thread */
 	istgt_set_state(istgt, ISTGT_STATE_RUNNING);
@@ -2249,40 +2300,47 @@ reload:
 	epfd = epoll_create1(0);
 	if (epfd == -1) {
 		ISTGT_ERRLOG("epoll_create1() failed, errno:%d\n", errno);
-		return -1;
+		return (-1);
 	}
 	for (i = 0; i < (int)(sizeof epsocks / sizeof *epsocks); i++) {
 		epsocks[i] = -1;
 	}
-	/*
+
+#if 0
 	kq = kqueue();
 	if (kq == -1) {
 		ISTGT_ERRLOG("kqueue() failed\n");
-		return -1;
+		return (-1);
 	}
 	for (i = 0; i < (int)(sizeof kqsocks / sizeof *kqsocks); i++) {
 		kqsocks[i] = -1;
 	}
-	*/
+#endif
 	MTX_LOCK(&istgt->mutex);
 	for (i = 0; i < istgt->nportal_group; i++) {
 		for (j = 0; j < istgt->portal_group[i].nportals; j++) {
 			if (istgt->portal_group[i].portals[j]->sock >= 0) {
-				event.data.fd = istgt->portal_group[i].portals[j]->sock;
+				event.data.fd =
+				    istgt->portal_group[i].portals[j]->sock;
 				event.events = EPOLLIN;
-				rc = epoll_ctl(epfd, EPOLL_CTL_ADD, istgt->portal_group[i].portals[j]->sock, &event);
+				rc = epoll_ctl(epfd, EPOLL_CTL_ADD,
+				    istgt->portal_group[i].portals[j]->sock,
+				    &event);
 				if (rc == -1) {
 					MTX_UNLOCK(&istgt->mutex);
-					ISTGT_ERRLOG("epoll_ctl() failed, errno:%d\n", errno);
+					ISTGT_ERRLOG("epoll_ctl() failed, "
+					    "errno:%d\n", errno);
 					close(epfd);
-					return -1;
+					return (-1);
 				}
-				epsocks[nidx] = istgt->portal_group[i].portals[j]->sock;
+				epsocks[nidx] =
+				    istgt->portal_group[i].portals[j]->sock;
 				nidx++;
 			}
 		}
 	}
-	/*
+
+#if 0
 	for (i = 0; i < istgt->nportal_group; i++) {
 		for (j = 0; j < istgt->portal_group[i].nportals; j++) {
 			if (istgt->portal_group[i].portals[j]->sock >= 0) {
@@ -2293,30 +2351,33 @@ reload:
 					MTX_UNLOCK(&istgt->mutex);
 					ISTGT_ERRLOG("kevent() failed\n");
 					close(kq);
-					return -1;
+					return (-1);
 				}
 				kqsocks[nidx] = istgt->portal_group[i].portals[j]->sock;
 				nidx++;
 			}
 		}
 	}
-	*/
+#endif
+
 	MTX_UNLOCK(&istgt->mutex);
 	ucidx = nidx;
 	for (i = 0; i < istgt->nuctl_portal; i++) {
 		event.data.fd = istgt->uctl_portal[i].sock;
 		event.events = EPOLLIN;
-		rc = epoll_ctl(epfd, EPOLL_CTL_ADD, istgt->uctl_portal[i].sock, &event);
+		rc = epoll_ctl(epfd, EPOLL_CTL_ADD, istgt->uctl_portal[i].sock,
+		    &event);
 		if (rc == -1) {
 			MTX_UNLOCK(&istgt->mutex);
 			ISTGT_ERRLOG("epoll_ctl() failed, errno:%d\n", errno);
 			close(epfd);
-			return -1;
+			return (-1);
 		}
 		epsocks[nidx] = istgt->uctl_portal[i].sock;
 		nidx++;
 	}
-	/*
+
+#if 0
 	for (i = 0; i < istgt->nuctl_portal; i++) {
 		ISTGT_EV_SET(&kev, istgt->uctl_portal[i].sock,
 		    EVFILT_READ, EV_ADD, 0, 0, NULL);
@@ -2324,12 +2385,13 @@ reload:
 		if (rc == -1) {
 			ISTGT_ERRLOG("kevent() failed\n");
 			close(kq);
-			return -1;
+			return (-1);
 		}
 		kqsocks[nidx] = istgt->uctl_portal[i].sock;
 		nidx++;
 	}
-	*/
+#endif
+
 	event.data.fd = istgt->sig_pipe[0];
 	event.events = EPOLLIN;
 	rc = epoll_ctl(epfd, EPOLL_CTL_ADD, istgt->sig_pipe[0], &event);
@@ -2337,76 +2399,75 @@ reload:
 		MTX_UNLOCK(&istgt->mutex);
 		ISTGT_ERRLOG("epoll_ctl() failed, errno:%d\n", errno);
 		close(epfd);
-		return -1;
+		return (-1);
 	}
 	epsocks[nidx] = istgt->sig_pipe[0];
 	nidx++;
-	/*
+#if 0
 	ISTGT_EV_SET(&kev, istgt->sig_pipe[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
 	rc = kevent(kq, &kev, 1, NULL, 0, NULL);
 	if (rc == -1) {
 		ISTGT_ERRLOG("kevent() failed\n");
 		close(kq);
-		return -1;
+		return (-1);
 	}
 	kqsocks[nidx] = istgt->sig_pipe[0];
 	nidx++;
-	*/
+#endif
 
-//	signal(SIGTERM, SIG_IGN);
-//	signal(SIGINT, SIG_IGN);
+// 	signal(SIGTERM, SIG_IGN);
+// 	signal(SIGINT, SIG_IGN);
 	signal(SIGPIPE, SIG_IGN);
-//	if (!istgt->daemon)
-//TODO
-/*	
+// 	if (!istgt->daemon)
+// TODO
+#if 0
 	event.data.fd = SIGINT;
 	event.events = EPOLLIN;
-	rc = epoll_ctl(epfd, EPOLL_CTL_ADD, SIGINT, &event);//TODO CHECK
+	rc = epoll_ctl(epfd, EPOLL_CTL_ADD, SIGINT, &event);// TODO CHECK
 	if (rc == -1) {
 		MTX_UNLOCK(&istgt->mutex);
 		ISTGT_ERRLOG("epoll_ctl() failed, errno:%d\n", errno);
 		close(epfd);
-		return -1;
+		return (-1);
 	}
 
 	event.data.fd = SIGTERM;
 	event.events = EPOLLIN;
-	rc = epoll_ctl(epfd, EPOLL_CTL_ADD, SIGTERM, &event);//TODO CHECK
+	rc = epoll_ctl(epfd, EPOLL_CTL_ADD, SIGTERM, &event);// TODO CHECK
 	if (rc == -1) {
 		MTX_UNLOCK(&istgt->mutex);
 		ISTGT_ERRLOG("epoll_ctl() failed, errno:%d\n", errno);
 		close(epfd);
-		return -1;
+		return (-1);
 	}
-*/
-	/*
+
 	{
 		ISTGT_EV_SET(&kev, SIGINT, EVFILT_SIGNAL, EV_ADD, 0, 0, NULL);
 		rc = kevent(kq, &kev, 1, NULL, 0, NULL);
 		if (rc == -1) {
 			ISTGT_ERRLOG("kevent() failed\n");
 			close(kq);
-			return -1;
+			return (-1);
 		}
 		ISTGT_EV_SET(&kev, SIGTERM, EVFILT_SIGNAL, EV_ADD, 0, 0, NULL);
 		rc = kevent(kq, &kev, 1, NULL, 0, NULL);
 		if (rc == -1) {
 			ISTGT_ERRLOG("kevent() failed\n");
 			close(kq);
-			return -1;
+			return (-1);
 		}
 	}
-	*/
+#endif
 
 	while (1) {
 		if (istgt_get_state(istgt) != ISTGT_STATE_RUNNING) {
 			break;
 		}
-		//ISTGT_TRACELOG(ISTGT_TRACE_NET, "kevent %d\n", nidx);
+		// ISTGT_TRACELOG(ISTGT_TRACE_NET, "kevent %d\n", nidx);
 		ep_timeout.tv_sec = 10;
 		ep_timeout.tv_nsec = 0;
 		rc = epoll_wait(epfd, &events, 1, ep_timeout.tv_sec*1000);
-		//rc = kevent(kq, NULL, 0, &kev, 1, &kev_timeout);
+		// rc = kevent(kq, NULL, 0, &kev, 1, &kev_timeout);
 		if (rc == -1 && errno == EINTR) {
 			continue;
 		}
@@ -2416,17 +2477,17 @@ reload:
 		}
 		if (rc == 0) {
 			/* idle timeout */
-			//ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "kevent TIMEOUT\n");
+			// ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "kevent TIMEOUT\n");
 			continue;
 		}
-		/*TODO
+#if 0
+		/* TODO */
 		if (events.data.fd == SIGINT || events.data.fd == SIGTERM) {
 			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 					"kevent SIGNAL SIGINT/SIGTERM\n");
 			break;
 		}
-		*/
-		/*
+
 		if (events.events == SIGINT || events.events == SIGTERM) {
 			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "kevent SIGNAL\n");
 			if (kev.ident == SIGINT || kev.ident == SIGTERM) {
@@ -2436,27 +2497,30 @@ reload:
 			}
 			continue;
 		}
-		*/
+#endif
 
 		n = rc;
 		for (i = 0; n != 0 && i < ucidx; i++) {
 			if (events.data.fd == epsocks[i]) {
-				/*
+#if 0
 				if (kev.flags) {
 					ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 					    "flags %x\n",
 					    kev.flags);
 				}
-				*/
+#endif
 				n--;
-				memset(&sa, 0, sizeof(sa));
-				salen = sizeof(sa);
+				memset(&sa, 0, sizeof (sa));
+				salen = sizeof (sa);
 				ISTGT_TRACELOG(ISTGT_TRACE_NET, "accept %ld\n",
 				    (unsigned long)events.data.fd);
-				pp = istgt_get_sock_portal(istgt, events.data.fd);
-				rc = accept(events.data.fd, (struct sockaddr *) &sa, &salen);
+				pp = istgt_get_sock_portal(istgt,
+				    events.data.fd);
+				rc = accept(events.data.fd,
+				    (struct sockaddr *) &sa, &salen);
 				if (rc < 0) {
-					ISTGT_ERRLOG("accept error errno:%d rc:%d\n", errno, rc);
+					ISTGT_ERRLOG("accept error errno:%d "
+					    "rc:%d\n", errno, rc);
 					continue;
 				}
 				sock = rc;
@@ -2464,7 +2528,8 @@ reload:
 				    (struct sockaddr *) &sa, salen);
 				if (rc < 0) {
 					close(sock);
-					ISTGT_ERRLOG("istgt_create_conn() failed\n");
+					ISTGT_ERRLOG("istgt_create_conn() "
+					    "failed\n");
 					continue;
 				}
 			}
@@ -2473,22 +2538,24 @@ reload:
 		/* check for control */
 		for (i = 0; n != 0 && i < istgt->nuctl_portal; i++) {
 			if (events.data.fd == istgt->uctl_portal[i].sock) {
-				/*
+#if 0
 				if (kev.flags) {
 					ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 					    "flags %x\n",
 					    kev.flags);
 				}
-				*/
+#endif
 				n--;
-				memset(&sa, 0, sizeof(sa));
-				salen = sizeof(sa);
+				memset(&sa, 0, sizeof (sa));
+				salen = sizeof (sa);
 				ISTGT_TRACELOG(ISTGT_TRACE_NET,
-				    "accept %ld\n", (unsigned long)events.data.fd);
+				    "accept %ld\n",
+				    (unsigned long)events.data.fd);
 				rc = accept(events.data.fd,
 				    (struct sockaddr *) &sa, &salen);
 				if (rc < 0) {
-					ISTGT_ERRLOG("accept error errno:%d rc:%d\n", errno, rc);
+					ISTGT_ERRLOG("accept error errno:%d "
+					    "rc:%d\n", errno, rc);
 					continue;
 				}
 				sock = rc;
@@ -2497,7 +2564,8 @@ reload:
 				    (struct sockaddr *) &sa, salen);
 				if (rc < 0) {
 					close(sock);
-					ISTGT_ERRLOG("istgt_create_uctl() failed\n");
+					ISTGT_ERRLOG("istgt_create_uctl() "
+					    "failed\n");
 					continue;
 				}
 			}
@@ -2505,16 +2573,15 @@ reload:
 
 		/* check for signal thread */
 		if (events.data.fd == istgt->sig_pipe[0]) {
-			/*
-
+#if 0
 			if (kev.flags & (EV_EOF|EV_ERROR)) {
 				ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
 				    "kevent EOF/ERROR\n");
 				break;
 			}
-			*/
+#endif
 			char tmp[RELOAD_CMD_LENGTH];
-			//int pgp_idx;
+			// int pgp_idx;
 			int rc2;
 
 			rc = read(istgt->sig_pipe[0], tmp, RELOAD_CMD_LENGTH);
@@ -2522,7 +2589,7 @@ reload:
 				ISTGT_ERRLOG("read() failed\n");
 				break;
 			}
-			//pgp_idx = (int)DGET32(&tmp[1]);
+			// pgp_idx = (int)DGET32(&tmp[1]);
 
 			if (tmp[0] == 'E') {
 				ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
@@ -2533,32 +2600,37 @@ reload:
 				rc = istgt_pg_delete(istgt);
 				MTX_LOCK(&istgt->reload_mutex);
 				istgt->pg_reload = rc < 0 ? -1 : 1;
-				rc2 = pthread_cond_broadcast(&istgt->reload_cond);
+				rc2 =
+				    pthread_cond_broadcast(&istgt->reload_cond);
 				if (rc2 != 0) {
-					ISTGT_ERRLOG("cond_broadcast() failed\n");
+					ISTGT_ERRLOG("cond_broadcast() "
+					    "failed\n");
 				}
 				MTX_UNLOCK(&istgt->reload_mutex);
 				if (rc < 0) {
 					ISTGT_ERRLOG("pg_delete() failed\n");
-					//break;
+					// break;
 				}
 			}
 			if (tmp[0] == 'U') {
 				rc = istgt_pg_update(istgt);
 				MTX_LOCK(&istgt->reload_mutex);
 				istgt->pg_reload = rc < 0 ? -1 : 1;
-				rc2 = pthread_cond_broadcast(&istgt->reload_cond);
+				rc2 =
+				    pthread_cond_broadcast(&istgt->reload_cond);
 				if (rc2 != 0) {
-					ISTGT_ERRLOG("cond_broadcast() failed\n");
+					ISTGT_ERRLOG("cond_broadcast() "
+					    "failed\n");
 				}
 				MTX_UNLOCK(&istgt->reload_mutex);
 				if (rc < 0) {
 					ISTGT_ERRLOG("pg_update() failed\n");
-					//break;
+					// break;
 				}
 			}
 			close(epfd);
-			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG, "reload accept loop\n");
+			ISTGT_TRACELOG(ISTGT_TRACE_DEBUG,
+			    "reload accept loop\n");
 			goto reload;
 		}
 	}
@@ -2567,7 +2639,7 @@ reload:
 	istgt_set_state(istgt, ISTGT_STATE_EXITING);
 	istgt_lu_set_all_state(istgt, ISTGT_STATE_EXITING);
 
-	return 0;
+	return (0);
 }
 
 static void
@@ -2594,13 +2666,13 @@ usage(void)
 
 #if 0
 int unmap_support_global = 0;
-static void 
+static void
 get_zvol_unmap_enabled(void)
 {
 	uint64_t unmap_val = 0;
-	size_t size = sizeof(unmap_val);
-	if (sysctlbyname("vfs.zfs.zvol_unmap_enabled", &unmap_val, &size, NULL, 0) == 0 
-			&& unmap_val != 0)
+	size_t size = sizeof (unmap_val);
+	if (sysctlbyname("vfs.zfs.zvol_unmap_enabled", &unmap_val, &size,
+	    NULL, 0) == 0 && unmap_val != 0)
 		unmap_support = 1;
 	else
 		unmap_support = 0;
@@ -2609,19 +2681,19 @@ get_zvol_unmap_enabled(void)
 
 int is_unmap_enabled(void)
 {
-	return unmap_support;
+	return (unmap_support);
 }
- #endif
+#endif
 
 static int persist = 1;
 int is_persist_enabled(void)
 {
-        return persist;
+	return (persist);
 }
 
-clockid_t clockid = CLOCK_UPTIME_FAST; // CLOCK_SECOND  CLOCK_MONOTONIC_FAST
+clockid_t clockid = CLOCK_UPTIME_FAST; //  CLOCK_SECOND  CLOCK_MONOTONIC_FAST
 extern int detectDoubleFree;
-//int enable_xcopy = 0;
+// int enable_xcopy = 0;
 int enable_oldBL = 0;
 
 void *timerfn(void *ptr __attribute__((__unused__)))
@@ -2639,16 +2711,17 @@ void *timerfn(void *ptr __attribute__((__unused__)))
 	clock_gettime(clockid, &last_check);
 #endif
 
-	while(1)
-	{
-		while((conn = (CONN *)(istgt_queue_dequeue(&closedconns))) != NULL)
-		{
-			if(((time(NULL) - conn->closetime) > 300) && (conn->inflight == 0))
+	while (1) {
+		while ((conn =
+		    (CONN *)(istgt_queue_dequeue(&closedconns))) != NULL) {
+			if (((time(NULL) - conn->closetime) > 300) &&
+			    (conn->inflight == 0))
 				istgt_free_conn(conn);
 			else
 				istgt_queue_enqueue(&backupconns, conn);
 		}
-		while((conn = (CONN *)(istgt_queue_dequeue(&backupconns))) != NULL)
+		while ((conn =
+		    (CONN *)(istgt_queue_dequeue(&backupconns))) != NULL)
 			istgt_queue_enqueue(&closedconns, conn);
 
 #ifdef	REPLICATION
@@ -2659,7 +2732,8 @@ void *timerfn(void *ptr __attribute__((__unused__)))
 
 		/*
 		 * Here, we are checking if IOs are taking much time to
-		 * complete than expected time at an interval of (replica_timeout /4).
+		 * complete than expected time at an interval of
+		 * (replica_timeout /4).
 		 * Expected time is set to (replica_timeout / 4) in ms.
 		 *
 		 * complete_queue holds the IOs scheduled for the target.
@@ -2673,11 +2747,14 @@ void *timerfn(void *ptr __attribute__((__unused__)))
 			MTX_LOCK(&specq_mtx);
 			TAILQ_FOREACH(spec, &spec_q, spec_next) {
 				MTX_LOCK(&spec->complete_queue_mutex);
-				lu_task = (ISTGT_LU_TASK_Ptr)istgt_queue_first(&spec->complete_queue);
+				lu_task =
+				    (ISTGT_LU_TASK_Ptr)istgt_queue_first(
+				    &spec->complete_queue);
 				if (lu_task) {
 					lu_cmd = &lu_task->lu_cmd;
 					clock_gettime(clockid, &now);
-					timesdiff(clockid, lu_cmd->times[0], now, diff);
+					timesdiff(clockid, lu_cmd->times[0],
+					    now, diff);
 					ms = diff.tv_sec * 1000;
 					ms += diff.tv_nsec / 1000000;
 					if (ms > check_interval) {
@@ -2695,7 +2772,7 @@ void *timerfn(void *ptr __attribute__((__unused__)))
 
 		sleep(60);
 	}
-	return (void *)NULL;
+	return ((void *)NULL);
 }
 void *zv;
 void *spa;
@@ -2744,13 +2821,15 @@ main(int argc, char **argv)
 	istgt->daemon = 0;
 	istgt->generation = 0;
 
-        g_num_luworkers = 0;
-	
-	istgtversn = snprintf(istgtvers, 79, "istgt:%s.%s:%s:%s", ISTGT_VERSION, ISTGT_EXTRA_VERSION, __TIME__, __DATE__);
+	g_num_luworkers = 0;
+
+	istgtversn = snprintf(istgtvers, 79, "istgt:%s.%s:%s:%s",
+	    ISTGT_VERSION, ISTGT_EXTRA_VERSION, __TIME__, __DATE__);
 	istgtvers[79] = '\0';
 
 	pthread_t slf = pthread_self();
-	snprintf(tinfo, sizeof tinfo, "m#%d.%d", (int)(((uint64_t *)slf)[0]), getpid());
+	snprintf(tinfo, sizeof tinfo, "m#%d.%d", (int)(((uint64_t *)slf)[0]),
+	    getpid());
 #ifdef HAVE_PTHREAD_SET_NAME_NP
 	pthread_set_name_np(pthread_self(), tinfo);
 #endif
@@ -2772,9 +2851,9 @@ main(int argc, char **argv)
 			break;
 		case 'm':
 			swmode = strtol(optarg, NULL, 10);
-			if (swmode == ISTGT_SWMODE_TRADITIONAL
-			    || swmode == ISTGT_SWMODE_NORMAL
-			    || swmode == ISTGT_SWMODE_EXPERIMENTAL) {
+			if (swmode == ISTGT_SWMODE_TRADITIONAL ||
+			    swmode == ISTGT_SWMODE_NORMAL ||
+			    swmode == ISTGT_SWMODE_EXPERIMENTAL) {
 				istgt->swmode = swmode;
 			} else {
 				fprintf(stderr, "unknown mode %x\n", swmode);
@@ -2814,23 +2893,26 @@ main(int argc, char **argv)
 		case 'q':
 			g_warn_flag = 0;
 			break;
-			/* 
-			 * CloudByte ES1.1 - added option for spawning more than one
-			 * luworker thread for a lun
-			 * This could probably be moved to the conf file but for now
-			 * spawning this from cmd line seems safer as istgt can easily
-			 * be restarted on the go and importantly, didn't want to
+			/*
+			 * CloudByte ES1.1 - added option for spawning more
+			 * than one luworker thread for a lun
+			 * This could probably be moved to the conf file but
+			 * for now spawning this from cmd line seems safer as
+			 * istgt can easily be restarted on the go and
+			 * importantly, didn't want to
 			 * diverge from the mainline/std conf file semantics
 			 */
 		case 'N':
 			g_num_luworkers = strtol(optarg, NULL, 10);
-			if ((g_num_luworkers > (ISTGT_MAX_NUM_LUWORKERS - 1)) || (g_num_luworkers <= 0)) {
+			if ((g_num_luworkers > (ISTGT_MAX_NUM_LUWORKERS - 1)) ||
+			    (g_num_luworkers <= 0)) {
 				g_num_luworkers = 0;
-				fprintf(stderr, "Incorrect number of lu worker threads specified\n" );
+				fprintf(stderr, "Incorrect number of lu worker "
+				    "threads specified\n" );
 				usage();
 				exit(EXIT_FAILURE);
 			}
-			break; 
+			break;
 		case 'D':
 			detach = 0;
 			break;
@@ -2841,7 +2923,8 @@ main(int argc, char **argv)
 			enable_oldBL = 1;
 			break;
 		case 'V':
-			printf("istgt version %s  %s\n", ISTGT_VERSION, istgtvers);
+			printf("istgt version %s  %s\n",
+			    ISTGT_VERSION, istgtvers);
 			printf("istgt extra version %s\n", ISTGT_EXTRA_VERSION);
 			exit(EXIT_SUCCESS);
 		case 'P':
@@ -2849,9 +2932,10 @@ main(int argc, char **argv)
 			break;
 #ifdef	REPLICATION
 		case 'R':
-                        replica_timeout = strtol(optarg, NULL, 10);
+			replica_timeout = strtol(optarg, NULL, 10);
 			if (replica_timeout <= 0) {
-				fprintf(stderr, "Incorrect timeout for replica\n");
+				fprintf(stderr, "Incorrect timeout for "
+				    "replica\n");
 				usage();
 				exit(EXIT_FAILURE);
 			}
@@ -2882,7 +2966,7 @@ main(int argc, char **argv)
 	}
 	istgt->config = config;
 	istgt->config_old = NULL;
-	//istgt_print_config(config);
+	// istgt_print_config(config);
 
 
 	/* open log files */
@@ -2942,13 +3026,13 @@ main(int argc, char **argv)
 
 	/* Initialize replication library */
 	rc = initialize_replication();
-	if(rc != 0) {
+	if (rc != 0) {
 		ISTGT_ERRLOG("initialize_replication() failed\n");
 		goto initialize_error;
 	}
 
-	rc = pthread_create(&replication_thread, &istgt->attr, &init_replication,
-	    (void *)NULL);
+	rc = pthread_create(&replication_thread, &istgt->attr,
+	    &init_replication, (void *)NULL);
 	if (rc != 0) {
 		ISTGT_ERRLOG("pthread_create(replication_thread) failed\n");
 		goto initialize_error;
@@ -2974,7 +3058,7 @@ main(int argc, char **argv)
 
 	/* detach from tty and run background */
 	fflush(stdout);
-/*
+#if 0
 	if (detach) {
 		istgt->daemon = 1;
 		rc = daemon(0, 0);
@@ -2983,7 +3067,8 @@ main(int argc, char **argv)
 			goto initialize_error;
 		}
 	}
-*/
+#endif
+
 	/* setup signal handler thread */
 	signal(SIGPIPE, SIG_IGN);
 	#if 0
@@ -3034,8 +3119,8 @@ main(int argc, char **argv)
 	}
 #endif
 #ifdef ISTGT_USE_SIGRT
-	if (ISTGT_SIGWAKEUP < SIGRTMIN
-	    || ISTGT_SIGWAKEUP > SIGRTMAX) {
+	if (ISTGT_SIGWAKEUP < SIGRTMIN ||
+	    ISTGT_SIGWAKEUP > SIGRTMAX) {
 		ISTGT_ERRLOG("SIGRT error\n");
 		goto initialize_error;
 	}
@@ -3093,12 +3178,12 @@ main(int argc, char **argv)
 
 	/* create LUN threads for command queuing */
 	istgt_queue_init(&closedconns);
-        rc = pthread_create(&timerthread, &istgt->attr, &timerfn,
-                        (void *)NULL);
-        if (rc != 0) {
-                ISTGT_ERRLOG("pthread_create(timerthread) failed\n");
+	rc = pthread_create(&timerthread, &istgt->attr, &timerfn,
+	    (void *)NULL);
+	if (rc != 0) {
+		ISTGT_ERRLOG("pthread_create(timerthread) failed\n");
 		goto initialize_error;
-        }
+	}
 
 	rc = istgt_lu_create_threads(istgt);
 	if (rc < 0) {
@@ -3189,5 +3274,5 @@ main(int argc, char **argv)
 	istgt_free_config(config);
 	istgt->state = ISTGT_STATE_SHUTDOWN;
 	poolfini();
-	return 0;
+	return (0);
 }

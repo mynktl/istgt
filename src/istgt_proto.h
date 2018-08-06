@@ -60,10 +60,10 @@
 #define __attribute__(x)
 #endif
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
-#define ISTGT_GNUC_PREREQ(ma,mi) \
+#define ISTGT_GNUC_PREREQ(ma, mi) \
 	(__GNUC__ > (ma) || (__GNUC__ == (ma) && __GNUC_MINOR__ >= (mi)))
 #else
-#define ISTGT_GNUC_PREREQ(ma,mi) 0
+#define ISTGT_GNUC_PREREQ(ma, mi) 0
 #endif
 
 /* istgt_iscsi.c */

@@ -13,8 +13,7 @@
  *  lending are violations of federal copyright laws and state trade
  *  secret laws, punishable by civil and criminal penalties.
  *
- *
- ****************************************************************************/
+ */
 #ifndef ISTGT_ISCSI_XCOPY_H
 #define ISTGT_ISCSI_XCOPY_H
 

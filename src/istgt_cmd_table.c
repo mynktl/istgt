@@ -27,7 +27,7 @@
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
  *
- * $Id: //depot/users/kenm/FreeBSD-test2/sys/cam/ctl/ctl_cmd_table.c#4 $
+ * $Id: // depot/users/kenm/FreeBSD-test2/sys/cam/ctl/ctl_cmd_table.c#4 $
  * $FreeBSD: stable/9/sys/cam/ctl/ctl_cmd_table.c 237824 2012-06-29 21:27:37Z ken $
  */
 /*
@@ -83,7 +83,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 			  ISTGT_FLAG_DATA_NONE |
 			  ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 			  __TUR
- },
+},
 
 /* 01 REWIND */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE , __UNK},
@@ -102,14 +102,14 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				       ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				       ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 					   __RQSNS
- },
+},
 
 /* 04 FORMAT UNIT */
 { ISTGT_SERIDX_FORMAT, ISTGT_CMD_FLAG_OK_ON_SLUN |
 				ISTGT_CMD_FLAG_OK_ON_INOPERABLE |
 				ISTGT_FLAG_DATA_OUT,
 				__FMT
- },
+},
 
 /* 05 READ BLOCK LIMITS */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __RBL},
@@ -125,7 +125,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				  ISTGT_FLAG_DATA_IN |
 				  ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 				  __RD6
- },
+},
 
 /* 09 */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK },
@@ -168,7 +168,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 			      ISTGT_FLAG_DATA_IN |
 			      ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 				  __INQ
- },
+},
 
 /* 13 */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -183,7 +183,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				     ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				     ISTGT_FLAG_DATA_OUT,
 					 __MSEL
- },
+},
 
 /* 16 RESERVE(6) */
 { ISTGT_SERIDX_RESV, ISTGT_CMD_FLAG_ALLOW_ON_RESV |
@@ -193,7 +193,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				    ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				    ISTGT_FLAG_DATA_OUT,
 					 __RSV6
- },
+},
 
 /* 17 RELEASE(6) */
 { ISTGT_SERIDX_REL, ISTGT_CMD_FLAG_ALLOW_ON_RESV |
@@ -203,7 +203,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				   ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				   ISTGT_FLAG_DATA_NONE,
 					__REL6
- },
+},
 
 /* 18 COPY */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -218,7 +218,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				    ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				    ISTGT_FLAG_DATA_IN,
 					__MSN6
- },
+},
 
 /* 1B START STOP UNIT */
 { ISTGT_SERIDX_START, ISTGT_CMD_FLAG_OK_ON_SLUN |
@@ -228,7 +228,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				   ISTGT_FLAG_DATA_NONE |
 				   ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 					__START
- },
+},
 
 /* 1C RECEIVE DIAGNOSTIC RESULTS */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -265,7 +265,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				       ISTGT_FLAG_DATA_IN |
 				       ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 						__RCAP10
- },
+},
 
 /* 26 */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -278,7 +278,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				  ISTGT_FLAG_DATA_IN |
 				  ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 				  __RD10
- },
+},
 
 /* 29 READ GENERATION */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -286,7 +286,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 /* 2A WRITE(10) */
 { ISTGT_SERIDX_WRITE, ISTGT_CMD_FLAG_OK_ON_SLUN| ISTGT_FLAG_DATA_OUT,
 	              __WR10
- },
+},
 
 /* 2B SEEK(10) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -300,7 +300,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 /* 2E WRITE AND VERIFY(10) */
 { ISTGT_SERIDX_WRITE, ISTGT_CMD_FLAG_OK_ON_SLUN| ISTGT_FLAG_DATA_OUT,
 	              __WV10
- },
+},
 
 /* 2F VERIFY(10) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -324,7 +324,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 { ISTGT_SERIDX_START, ISTGT_CMD_FLAG_OK_ON_SLUN |
 				   ISTGT_FLAG_DATA_NONE,
 				   __SYC10
- },
+},
 
 /* 36 LOCK UNLOCK CACHE(10) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -345,7 +345,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 { ISTGT_SERIDX_WRITE, ISTGT_CMD_FLAG_OK_ON_PROC |
 				     ISTGT_FLAG_DATA_OUT,
 					 __WBF
- },
+},
 
 /* 3C READ BUFFER */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -429,7 +429,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				     ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				     ISTGT_FLAG_DATA_OUT,
 						  __MSEL10
- },
+},
 
 /* 56 RESERVE(10) */
 { ISTGT_SERIDX_RESV, ISTGT_CMD_FLAG_ALLOW_ON_RESV |
@@ -439,7 +439,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				    ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				    ISTGT_FLAG_DATA_OUT,
 						  __RSV10
- },
+},
 
 /* 57 RELEASE(10) */
 { ISTGT_SERIDX_REL, ISTGT_CMD_FLAG_ALLOW_ON_RESV |
@@ -449,7 +449,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				   ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				   ISTGT_FLAG_DATA_OUT,
 						  __REL10
- },
+},
 
 /* 58 REPAIR TRACK */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -464,7 +464,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				    ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				    ISTGT_FLAG_DATA_IN,
 						  __MSN10
- },
+},
 
 /* 5B CLOSE TRACK/SESSION */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -484,9 +484,9 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 						ISTGT_FLAG_DATA_IN |
 						ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 						  __PRIN
- },
+},
 
-//{ ISTGT_SERIDX_INVLD, __UNK},
+// { ISTGT_SERIDX_INVLD, __UNK},
 
 /* 5F PERSISTENT RESERVE OUT */
 { ISTGT_SERIDX_PRES_OUT, ISTGT_CMD_FLAG_ALLOW_ON_RESV |
@@ -497,9 +497,9 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 						  ISTGT_FLAG_DATA_OUT |
 						  ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 						  __PROUT
- },
+},
 
-//{ ISTGT_SERIDX_INVLD, __UNK},
+// { ISTGT_SERIDX_INVLD, __UNK},
 
 /* 60 */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -623,19 +623,19 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 
 /* 88 READ(16) */
 { ISTGT_SERIDX_READ, ISTGT_CMD_FLAG_OK_ON_SLUN | ISTGT_FLAG_DATA_IN |
-                                  ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
-				   __RD16
- },
+	ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
+	__RD16
+},
 
 /* 89 COMPARE AND WRITE */
 { ISTGT_SERIDX_WRITE, ISTGT_CMD_FLAG_OK_ON_SLUN | ISTGT_FLAG_DATA_OUT,
-				   __ATS
- },
+	__ATS
+},
 
 /* 8A WRITE(16) */
 { ISTGT_SERIDX_WRITE, ISTGT_CMD_FLAG_OK_ON_SLUN| ISTGT_FLAG_DATA_OUT,
-				   __WR16
- },
+	__WR16
+},
 
 /* 8B */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -649,7 +649,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 /* 8E WRITE AND VERIFY(16) */
 { ISTGT_SERIDX_WRITE, ISTGT_CMD_FLAG_OK_ON_SLUN| ISTGT_FLAG_DATA_OUT,
 				   __WV16
- },
+},
 
 /* 8F VERIFY(16) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -661,7 +661,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 { ISTGT_SERIDX_START, ISTGT_CMD_FLAG_OK_ON_SLUN |
 				   ISTGT_FLAG_DATA_NONE,
 				   __SYC16
- },
+},
 
 /* 92 LOCK UNLOCK CACHE(16) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -708,7 +708,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 					   ISTGT_FLAG_DATA_IN |
 					   ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 	 __RDCAP
- },
+},
 
 /* 9F SERVICE ACTION OUT(16) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -724,7 +724,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				  ISTGT_FLAG_DATA_IN |
 				  ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
 	 __RLUN
- },
+},
 
 /* A1 BLANK */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -739,7 +739,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 				         ISTGT_CMD_FLAG_OK_ON_SECONDARY |
 				         ISTGT_FLAG_DATA_IN,
 	 __M_IN
- },
+},
 
 /* A4 MAINTENANCE (OUT) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -755,9 +755,9 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 
 /* A8 READ(12) */
 { ISTGT_SERIDX_READ, ISTGT_CMD_FLAG_OK_ON_SLUN | ISTGT_FLAG_DATA_IN |
-                                  ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
-	 __RD12
- },
+	ISTGT_CMD_FLAG_ALLOW_ON_PR_RESV,
+	__RD12
+},
 
 /* A9 PLAY TRACK RELATIVE(12) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -765,7 +765,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 /* AA WRITE(12) */
 { ISTGT_SERIDX_WRITE, ISTGT_CMD_FLAG_OK_ON_SLUN| ISTGT_FLAG_DATA_OUT,
 	 __WR12
- },
+},
 
 /* AB SERVICE ACTION IN(12) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -779,7 +779,7 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 /* AE WRITE AND VERIFY(12) */
 { ISTGT_SERIDX_WRITE, ISTGT_CMD_FLAG_OK_ON_SLUN| ISTGT_FLAG_DATA_OUT,
 	 __WRV12
- },
+},
 
 /* AF VERIFY(12) */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},
@@ -835,22 +835,22 @@ struct istgt_cmd_entry istgt_cmd_table[] =
 /* C0 - ISC_SEND_MSG_SHORT */
 { ISTGT_SERIDX_READ, ISTGT_CMD_FLAG_OK_ON_PROC | ISTGT_FLAG_DATA_NONE,
 	          __ISMx
- },
+},
 
 /* C1 - ISC_SEND_MSG */
 {ISTGT_SERIDX_READ, ISTGT_CMD_FLAG_OK_ON_PROC | ISTGT_FLAG_DATA_OUT,
 	          __ISMx
- },
+},
 
 /* C2 - ISC_WRITE */
 { ISTGT_SERIDX_READ, ISTGT_CMD_FLAG_OK_ON_PROC | ISTGT_FLAG_DATA_OUT,
 	          __ISMx
- },
+},
 
 /* C3 - ISC_READ */
 { ISTGT_SERIDX_READ, ISTGT_CMD_FLAG_OK_ON_PROC | ISTGT_FLAG_DATA_IN,
 	          __ISMx
- },
+},
 
 /* C4 */
 { ISTGT_SERIDX_INVLD, ISTGT_CMD_FLAG_NONE, __UNK},

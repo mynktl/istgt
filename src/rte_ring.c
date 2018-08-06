@@ -89,7 +89,7 @@ rte_ring_get_memsize(unsigned count)
 		return -EINVAL;
 	}
 
-	sz = sizeof(struct rte_ring) + count * sizeof(void *);
+	sz = sizeof (struct rte_ring) + count * sizeof (void *);
 	sz = RTE_ALIGN(sz, RTE_CACHE_LINE_SIZE);
 	return sz;
 }
@@ -101,7 +101,7 @@ rte_ring_init(struct rte_ring *r, const char *name, unsigned count,
 	int ret;
 
 	/* compilation-time checks */
-	RTE_BUILD_BUG_ON((sizeof(struct rte_ring) &
+	RTE_BUILD_BUG_ON((sizeof (struct rte_ring) &
 			  RTE_CACHE_LINE_MASK) != 0);
 	RTE_BUILD_BUG_ON((offsetof(struct rte_ring, cons) &
 			  RTE_CACHE_LINE_MASK) != 0);
@@ -109,9 +109,9 @@ rte_ring_init(struct rte_ring *r, const char *name, unsigned count,
 			  RTE_CACHE_LINE_MASK) != 0);
 
 	/* init the ring structure */
-	memset(r, 0, sizeof(*r));
-	ret = snprintf(r->name, sizeof(r->name), "%s", name);
-	if (ret < 0 || ret >= (int)sizeof(r->name))
+	memset(r, 0, sizeof (*r));
+	ret = snprintf(r->name, sizeof (r->name), "%s", name);
+	if (ret < 0 || ret >= (int)sizeof (r->name))
 		return -ENAMETOOLONG;
 	r->flags = flags;
 	r->prod.single = (flags & RING_F_SP_ENQ) ? __IS_SP : __IS_MP;
@@ -159,9 +159,9 @@ rte_ring_create(const char *name, unsigned count, int socket_id,
 		return NULL;
 	}
 
-	ret = snprintf(mz_name, sizeof(mz_name), "%s%s",
+	ret = snprintf(mz_name, sizeof (mz_name), "%s%s",
 		RTE_RING_MZ_PREFIX, name);
-	if (ret < 0 || ret >= (int)sizeof(mz_name)) {
+	if (ret < 0 || ret >= (int)sizeof (mz_name)) {
 		return NULL;
 	}
 

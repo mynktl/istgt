@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -26,7 +25,7 @@ replication_connect(const char *host, int port)
 	int rc;
 
 	if (host == NULL)
-		return -1;
+		return (-1);
 	if (host[0] == '[') {
 		strncpy(buf, host + 1, sizeof buf);
 		p = strchr(buf, ']');
@@ -51,19 +50,21 @@ replication_connect(const char *host, int port)
 	rc = getaddrinfo(host, portnum, &hints, &res0);
 	if (rc != 0) {
 		ISTGT_ERRLOG("getaddrinfo() failed.. err(%d)\n", rc);
-		return -1;
+		return (-1);
 	}
 
 	/* try connect */
 	sock = -1;
 	for (res = res0; res != NULL; res = res->ai_next) {
 retry:
-		sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+		sock = socket(res->ai_family, res->ai_socktype,
+		    res->ai_protocol);
 		if (sock < 0) {
 			/* error */
 			continue;
 		}
-		rc = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &val, sizeof val);
+		rc = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &val,
+		    sizeof val);
 		if (rc != 0) {
 			/* error */
 			continue;
@@ -89,9 +90,9 @@ retry:
 	freeaddrinfo(res0);
 
 	if (sock < 0) {
-		return -1;
+		return (-1);
 	}
-	return sock;
+	return (sock);
 }
 int
 replication_listen(const char *ip, int port, int que, int non_blocking)
@@ -105,7 +106,7 @@ replication_listen(const char *ip, int port, int que, int non_blocking)
 	int rc;
 
 	if (ip == NULL)
-		return -1;
+		return (-1);
 	if (ip[0] == '[') {
 		strncpy(buf, ip + 1, sizeof buf);
 		p = strchr(buf, ']');
@@ -132,7 +133,7 @@ replication_listen(const char *ip, int port, int que, int non_blocking)
 	rc = getaddrinfo(ip, portnum, &hints, &res0);
 	if (rc != 0) {
 		REPLICA_ERRLOG("getaddrinfo() failed err(%d)\n", rc);
-		return -1;
+		return (-1);
 	}
 	if (que < 2)
 		que = 2;
@@ -142,20 +143,23 @@ replication_listen(const char *ip, int port, int que, int non_blocking)
 	sock = -1;
 	for (res = res0; res != NULL; res = res->ai_next) {
 retry:
-		sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+		sock = socket(res->ai_family, res->ai_socktype,
+		    res->ai_protocol);
 		if (sock < 0) {
 			REPLICA_ERRLOG("failed to create socket .. err(%d)\n",
 			    errno);
 			continue;
 		}
 
-		rc = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof val);
+		rc = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val,
+		    sizeof val);
 		if (rc != 0) {
 			REPLICA_ERRLOG("failed to set SO_REUSEADDR for "
 			    "sock(%d).. err(%d)\n", sock, errno);
 			continue;
 		}
-		rc = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &val, sizeof val);
+		rc = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &val,
+		    sizeof val);
 		if (rc != 0) {
 			REPLICA_ERRLOG("failed to set TCP_NODELAY for "
 			    "sock(%d).. err(%d)\n", sock, errno);
@@ -187,9 +191,9 @@ retry:
 	}
 	freeaddrinfo(res0);
 	if (sock < 0) {
-		return -1;
+		return (-1);
 	}
-	return sock;
+	return (sock);
 }
 
 int
@@ -201,7 +205,7 @@ make_socket_non_blocking(int sfd)
 	if (flags == -1)
 	{
 		REPLICA_ERRLOG("fcntl failed err(%d)\n", errno);
-		return -1;
+		return (-1);
 	}
 
 	flags |= O_NONBLOCK;
@@ -209,8 +213,8 @@ make_socket_non_blocking(int sfd)
 	if (s == -1)
 	{
 		REPLICA_ERRLOG("fcntl failed err(%d)\n", errno);
-		return -1;
+		return (-1);
 	}
 
-	return 0;
+	return (0);
 }

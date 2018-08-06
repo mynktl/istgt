@@ -36,7 +36,7 @@ SUBDIRS = src etc doc
 
 #########################################################################
 
-.PHONY: all install install-doc
+.PHONY: all install install-doc cstyle
 all:
 	for subdir in $(SUBDIRS); do \
           (cd $$subdir; $(MAKE) $@) || exit $$?; \
@@ -51,6 +51,10 @@ install-doc:
 	for subdir in doc; do \
           (cd $$subdir; $(MAKE) $@) || exit $$?; \
 	done
+
+cstyle:
+	@find ${SUBDIRS} -name '*.[hc]' ! -name 'zfs_config.*' \
+		! -name '*.mod.c' ! -name 'rte_*.[hc]' ! -name 'config.h' ! -name 'zrepl_prot.h' -type f -exec scripts/cstyle.pl -cpP {} \+
 
 
 .PHONY: dist clean distclean local-clean local-distclean depend

@@ -71,7 +71,7 @@ typedef struct replica_s {
 	zvol_io_hdr_t *io_resp_hdr;	/* header recieved on data connection */
 	int io_state;			/* state of command on data connection */
 	int io_read;			/* amount of IO data read in current IO state for data connection */
-	zvol_io_hdr_t *mgmt_io_resp_hdr;/* header recieved on management connection */
+	zvol_io_hdr_t *mgmt_io_resp_hdr; /* header recieved on management connection */
 	void *mgmt_io_resp_data;	/* data recieved on management connection */
 	TAILQ_HEAD(, mgmt_cmd_s) mgmt_cmd_queue;	/* mgmt command queue for management connection */
 	uint64_t initial_checkpointed_io_seq;

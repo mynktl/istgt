@@ -93,12 +93,12 @@ main(void)
 	    offsetof(struct test_node_entry, node), "test_mempool",
 	    NULL, NULL, NULL, true)) {
 		destroy_mempool(&mempool);
-		return 0;
+		return (0);
 	}
 
 	check_mempool_size(&mempool);
 	verify_mempool_values_n_destroy(&mempool);
 
 	destroy_mempool(&mempool);
-	return 0;
+	return (0);
 }

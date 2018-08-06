@@ -38,7 +38,7 @@
 #include "istgt_log.h"
 #include "istgt_misc.h"
 
-//static int g_trace_flag = 0;
+// static int g_trace_flag = 0;
 int g_trace_flag = 0;
 int g_warn_flag = 1;
 static int g_log_facility = ISTGT_LOG_FACILITY;
@@ -69,9 +69,9 @@ istgt_set_log_facility(const char *facility)
 		g_log_facility = LOG_LOCAL7;
 	} else {
 		g_log_facility = ISTGT_LOG_FACILITY;
-		return -1;
+		return (-1);
 	}
-	return 0;
+	return (0);
 }
 
 int
@@ -95,13 +95,14 @@ istgt_set_log_priority(const char *priority)
 		g_log_priority = LOG_DEBUG;
 	} else {
 		g_log_priority = ISTGT_LOG_PRIORITY;
-		return -1;
+		return (-1);
 	}
-	return 0;
+	return (0);
 }
 
 void
-istgt_log(const char *file, const int line, const char *func, const char *format, ...)
+istgt_log(const char *file, const int line, const char *func,
+    const char *format, ...)
 {
 	char buf[MAX_TMPBUF];
 	va_list ap;
@@ -111,7 +112,8 @@ istgt_log(const char *file, const int line, const char *func, const char *format
 	if (file != NULL) {
 		if (func != NULL) {
 			fprintf(stderr, "%s:%4d:%s: %s", file, line, func, buf);
-			syslog(g_log_priority, "%s:%4d:%s: %s", file, line, func, buf);
+			syslog(g_log_priority, "%s:%4d:%s: %s",
+			    file, line, func, buf);
 		} else {
 			fprintf(stderr, "%s:%4d: %s", file, line, buf);
 			syslog(g_log_priority, "%s:%4d: %s", file, line, buf);
@@ -124,7 +126,8 @@ istgt_log(const char *file, const int line, const char *func, const char *format
 }
 
 void
-istgt_noticelog(const char *file, const int line, const char *func, const char *format, ...)
+istgt_noticelog(const char *file, const int line, const char *func,
+    const char *format, ...)
 {
 	char buf[MAX_TMPBUF];
 	va_list ap;
@@ -134,7 +137,8 @@ istgt_noticelog(const char *file, const int line, const char *func, const char *
 	if (file != NULL) {
 		if (func != NULL) {
 			fprintf(stderr, "%s:%4d:%s: %s", file, line, func, buf);
-			syslog(LOG_NOTICE, "%s:%4d:%s: %s", file, line, func, buf);
+			syslog(LOG_NOTICE, "%s:%4d:%s: %s",
+			    file, line, func, buf);
 		} else {
 			fprintf(stderr, "%s:%4d: %s", file, line, buf);
 			syslog(LOG_NOTICE, "%s:%4d: %s", file, line, buf);
@@ -147,7 +151,8 @@ istgt_noticelog(const char *file, const int line, const char *func, const char *
 }
 
 void
-istgt_tracelog(const int flag, const char *file, const int line, const char *func, const char *format, ...)
+istgt_tracelog(const int flag, const char *file, const int line,
+    const char *func, const char *format, ...)
 {
 	char buf[MAX_TMPBUF];
 	va_list ap;
@@ -157,7 +162,8 @@ istgt_tracelog(const int flag, const char *file, const int line, const char *fun
 		vsnprintf(buf, sizeof buf, format, ap);
 		if (func != NULL) {
 			fprintf(stderr, "%s:%4d:%s: %s", file, line, func, buf);
-			syslog(LOG_INFO, "%s:%4d:%s: %s", file, line, func, buf);
+			syslog(LOG_INFO, "%s:%4d:%s: %s",
+			    file, line, func, buf);
 		} else {
 			fprintf(stderr, "%s:%4d: %s", file, line, buf);
 			syslog(LOG_INFO, "%s:%4d: %s", file, line, buf);
@@ -167,7 +173,8 @@ istgt_tracelog(const int flag, const char *file, const int line, const char *fun
 }
 
 void
-istgt_errlog(const char *file, const int line, const char *func, const char *format, ...)
+istgt_errlog(const char *file, const int line, const char *func,
+    const char *format, ...)
 {
 	char buf[MAX_TMPBUF];
 	va_list ap;
@@ -175,8 +182,10 @@ istgt_errlog(const char *file, const int line, const char *func, const char *for
 	va_start(ap, format);
 	vsnprintf(buf, sizeof buf, format, ap);
 	if (func != NULL) {
-		fprintf(stderr, "%s:%4d:%s: ***ERROR*** %s", file, line, func, buf);
-		syslog(LOG_ERR, "%s:%4d:%s: ***ERROR*** %s", file, line, func, buf);
+		fprintf(stderr, "%s:%4d:%s: ***ERROR*** %s",
+		    file, line, func, buf);
+		syslog(LOG_ERR, "%s:%4d:%s: ***ERROR*** %s",
+		    file, line, func, buf);
 	} else {
 		fprintf(stderr, "%s:%4d: ***ERROR*** %s", file, line, buf);
 		syslog(LOG_ERR, "%s:%4d: ***ERROR*** %s", file, line, buf);
@@ -185,7 +194,8 @@ istgt_errlog(const char *file, const int line, const char *func, const char *for
 }
 
 void
-istgt_warnlog(const char *file, const int line, const char *func, const char *format, ...)
+istgt_warnlog(const char *file, const int line, const char *func,
+    const char *format, ...)
 {
 	char buf[MAX_TMPBUF];
 	va_list ap;
@@ -193,12 +203,14 @@ istgt_warnlog(const char *file, const int line, const char *func, const char *fo
 	va_start(ap, format);
 	vsnprintf(buf, sizeof buf, format, ap);
 	if (func != NULL) {
-		fprintf(stderr, "%s:%4d:%s: ***WARNING*** %s", file, line, func, buf);
+		fprintf(stderr, "%s:%4d:%s: ***WARNING*** %s",
+		    file, line, func, buf);
 		syslog(LOG_WARNING, "%s:%4d:%s: ***WARNING*** %s",
-			   file, line, func, buf);
+		    file, line, func, buf);
 	} else {
 		fprintf(stderr, "%s:%4d: ***WARNING*** %s", file, line, buf);
-		syslog(LOG_WARNING, "%s:%4d: ***WARNING*** %s", file, line, buf);
+		syslog(LOG_WARNING, "%s:%4d: ***WARNING*** %s",
+		    file, line, buf);
 	}
 	va_end(ap);
 }

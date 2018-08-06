@@ -32,7 +32,7 @@
  */
 #define RCMD_MEMPOOL_ENTRIES    (3 * RCOMMON_CMD_MEMPOOL_ENTRIES)
 
-#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef enum zvol_cmd_type_e {
 	CMD_IO = 1,
