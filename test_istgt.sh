@@ -453,9 +453,14 @@ run_read_consistency_test ()
 		pkill -9 -P $replica3_pid
 		return
 	fi
+	
+	sleep 5
+	find  /dev
+	ls -l /dev/sdc
 
 	write_data 0 41943040 512 "/dev/$device_name" $file_name
 	sync
+	$ISCSIADM -m session -P 3
 
 	write_data 0 10485760 4096 "/dev/$device_name" $file_name &
 	w_pid=$!
@@ -463,6 +468,7 @@ run_read_consistency_test ()
 	pkill -9 -P $replica1_pid
 	wait $w_pid
 	sync
+	$ISCSIADM -m session -P 3
 
 	start_replica -i "$CONTROLLER_IP" -p "$CONTROLLER_PORT" -I "$replica1_ip" -P "$replica1_port" -V $replica1_vdev -u "$replica1_id" -q -d &
 	replica1_pid=$!
@@ -473,6 +479,7 @@ run_read_consistency_test ()
 	pkill -9 -P $replica2_pid
 	wait $w_pid
 	sync
+	$ISCSIADM -m session -P 3
 
 	start_replica -i "$CONTROLLER_IP" -p "$CONTROLLER_PORT" -I "$replica2_ip" -P "$replica2_port" -V $replica2_vdev -u "$replica2_id" -q -d &
 	replica2_pid=$!
@@ -2070,20 +2077,20 @@ run_io_timeout_test()
 	rm -rf ${replica1_vdev::-1}*
 }
 
-run_lu_rf_test
-run_replica_connection_test
-run_scaleup_scaledown_test
-run_quorum_test
-run_resize_test
-data_integrity_with_unknown_replica
-run_non_quorum_replica_errored_test
-run_data_integrity_test
-run_mempool_test
-run_istgt_integration
+# run_lu_rf_test
+# run_replica_connection_test
+# run_scaleup_scaledown_test
+# run_quorum_test
+# run_resize_test
+# data_integrity_with_unknown_replica
+# run_non_quorum_replica_errored_test
+# run_data_integrity_test
+# run_mempool_test
+# run_istgt_integration
 run_read_consistency_test
-run_replication_factor_test
-run_io_timeout_test
-run_test_env
+# run_replication_factor_test
+# run_io_timeout_test
+# run_test_env
 echo "===============All Tests are passed ==============="
 tail -20 $LOGFILE
 
